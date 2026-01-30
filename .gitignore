@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Secrets and credentials
+.env
+.env.local
+.env.production
+token.pickle
+oauth_client.json
+*.json.key
+credentials.json
+
+# Google Cloud
+.gcloudignore
+
+# Node
+node_modules/
+.next/
+out/
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+temp/
+tmp/
+*.tmp

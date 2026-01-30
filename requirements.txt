@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+gunicorn
+google-cloud-storage
+google-api-python-client
+google-auth
+google-auth-oauthlib
+pydantic
+python-multipart
+google-generativeai
+python-dotenv
+PyMuPDF
+requests
