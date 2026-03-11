@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useAuth } from "@/features/auth/AuthContext";
 
-export type DashboardStage = "inputs" | "recommendation" | "upload" | "roadmap" | "export";
+export type DashboardStage = "home" | "inputs" | "recommendation" | "upload" | "roadmap" | "export";
 
 interface SidebarProps {
     currentStage: DashboardStage;
@@ -12,11 +12,12 @@ interface SidebarProps {
 }
 
 const stages: { id: DashboardStage; label: string; icon: string }[] = [
+    { id: "home", label: "My Dashboard", icon: "📊" },
     { id: "inputs", label: "Profile Setup", icon: "👤" },
     { id: "recommendation", label: "AI Recommendation", icon: "🎯" },
     { id: "upload", label: "Syllabus Upload", icon: "📄" },
     { id: "roadmap", label: "Learning Roadmap", icon: "🗺️" },
-    { id: "export", label: "Export & Share", icon: "📊" },
+    { id: "export", label: "Export & Share", icon: "📤" },
 ];
 
 export const Sidebar = ({ currentStage, maxUnlockedStage, onStageChange }: SidebarProps) => {

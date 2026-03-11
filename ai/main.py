@@ -16,7 +16,7 @@ from ai.skill_gap.gap_analyzer import (
     build_skill_frequency,
     analyze_skill_gap
 )
-from ai.domain_recommendation.parser import recommend_domains
+from ai.domain_recommendation import recommend_domains
 from ai.exports.sheet_exporter import export_roadmap_to_sheets
 
 # Configure Logging
@@ -69,6 +69,7 @@ if __name__ == "__main__":
                 
             results = recommend_domains(
                 user_interests=["machine learning", "ai"],
+                user_skills=["python", "statistics"],
                 unit_skill_map=unit_skill_map
             )
             logger.info("\n=== DOMAIN SCORES ===")

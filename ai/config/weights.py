@@ -2,14 +2,11 @@
 # SkillBridge AI - Scoring Weights
 # -------------------------------
 
-# Overall signal importance
-WEIGHTS = {
-    "interest_match": 0.50,
-    "skill_match": 0.30,
-    "syllabus_alignment": 0.20
-}
+# Primary scoring weights (must sum to 1.0)
+INTEREST_WEIGHT = 0.6
+READINESS_WEIGHT = 0.4
 
-# Skill-level importance
+# Skill-level importance (core skills worth more than secondary)
 SKILL_WEIGHTS = {
     "core": 2.0,
     "secondary": 1.0
@@ -19,13 +16,6 @@ SKILL_WEIGHTS = {
 INTEREST_SCORING = {
     "exact_match": 1.0,
     "partial_match": 0.5
-}
-
-# Syllabus alignment scoring
-SYLLABUS_SCORING = {
-    "fully_covered": 1.0,
-    "partially_covered": 0.5,
-    "not_covered": 0.0
 }
 
 # Score normalization

@@ -1,8 +1,6 @@
+import re
 import json
 from pathlib import Path
-
-from ai.domain_recommendation.scorer import score_domain
-from ai.skill_gap.gap_analyzer import analyze_skill_gap, build_skill_frequency
 
 # -----------------------
 # Config loading
@@ -14,83 +12,81 @@ def load_interest_taxonomy():
     with open(CONFIG_PATH / "interest_taxonomy.json", "r") as f:
         return json.load(f)
 
-def load_domain_skills():
-    with open(CONFIG_PATH / "domain_skills.json", "r") as f:
+def load_skill_normalization():
+    with open(CONFIG_PATH / "skill_normalization.json", "r") as f:
         return json.load(f)
 
 INTEREST_TAXONOMY = load_interest_taxonomy()
-DOMAIN_SKILLS = load_domain_skills()
+SKILL_NORMALIZATION = load_skill_normalization()
 
 # -----------------------
 # Interest Parsing
 # -----------------------
 
-def parse_interests(user_interests):
+def _is_whole_phrase_match(synonym: str, interest: str) -> bool:
     """
-    user_interests: list[str]
-    returns: list[str] (canonical interest tags)
+    Check if synonym appears as a whole word/phrase inside interest.
+    Uses word-boundary regex to prevent 'go' matching 'algorithms'.
     """
-    normalized_tags = []
+    pattern = r'\b' + re.escape(synonym) + r'\b'
+    return bool(re.search(pattern, interest))
+
+
+def parse_interests(user_interests: list[str]) -> list[str]:
+    """
+    Map raw user interests to canonical taxonomy tags.
+    Returns deduplicated list of matched canonical tags.
+    """
+    matched_tags = set()
 
     for interest in user_interests:
         interest = interest.lower().strip()
-        
-        # 1. Direct match check
+        if not interest:
+            continue
+
+        # 1. Direct synonym match (exact equality)
         found = False
         for tag, synonyms in INTEREST_TAXONOMY.items():
             if interest in synonyms:
-                normalized_tags.append(tag)
+                matched_tags.add(tag)
                 found = True
                 break
-        
-        if found: continue
 
-        # 2. Substring / Token matching fallback
-        # If user says "cloud computing", and "cloud" is a synonym for cloud_devops, we should match.
-        interest_tokens = interest.split()
+        if found:
+            continue
+
+        # 2. Whole-phrase matching fallback
+        #    Only match if the synonym appears as complete words
+        #    e.g. "cloud computing" matches "cloud" but "algorithms" does NOT match "go"
         for tag, synonyms in INTEREST_TAXONOMY.items():
             for synonym in synonyms:
-                # Check if synonym is inside interest (e.g. "cloud" in "cloud computing")
-                if synonym in interest: 
-                    normalized_tags.append(tag)
+                if len(synonym) >= 2 and _is_whole_phrase_match(synonym, interest):
+                    matched_tags.add(tag)
                     found = True
                     break
-            if found: break
+            if found:
+                break
 
-    return normalized_tags
+    return list(matched_tags)
+
 
 # -----------------------
-# MAIN DOMAIN RECOMMENDER
+# Skill Normalization
 # -----------------------
 
-def recommend_domains(
-    user_interests,
-    unit_skill_map
-):
-    parsed_interests = parse_interests(user_interests)
-    skill_freq = build_skill_frequency(unit_skill_map)
+def normalize_user_skills(user_skills: list[str]) -> list[str]:
+    """
+    Normalize user-provided skill strings using skill_normalization.json.
+    Returns deduplicated list of canonical skill names.
+    """
+    normalized = set()
 
-    results = []
+    for skill in (user_skills or []):
+        skill_lower = skill.lower().strip()
+        if skill_lower in SKILL_NORMALIZATION:
+            normalized.add(SKILL_NORMALIZATION[skill_lower])
+        else:
+            # Keep as-is if no normalization mapping exists
+            normalized.add(skill_lower)
 
-    for domain, domain_data in DOMAIN_SKILLS.items():
-        required_skills = (
-            domain_data.get("core", []) +
-            domain_data.get("secondary", [])
-        )
-
-        gap_result = analyze_skill_gap(
-            domain_skills=required_skills,
-            skill_freq=skill_freq
-        )
-
-        scored = score_domain(
-            domain=domain,
-            parsed_interests=parsed_interests,
-            readiness_score=gap_result["readiness_score"]
-        )
-
-        scored["skill_gap"] = gap_result
-        results.append(scored)
-
-    results.sort(key=lambda x: x["final_score"], reverse=True)
-    return results
+    return list(normalized)

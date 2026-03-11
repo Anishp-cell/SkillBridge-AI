@@ -11,6 +11,7 @@ import { RecommendationSection } from "@/components/dashboard/sections/Recommend
 import { SyllabusSection } from "@/components/dashboard/sections/SyllabusSection";
 import { RoadmapSection } from "@/components/dashboard/sections/RoadmapSection";
 import { ExportSection } from "@/components/dashboard/sections/ExportSection";
+import { StudentDashboard } from "@/components/dashboard/sections/StudentDashboard";
 
 // --- Types ---
 export interface PipelineData {
@@ -49,14 +50,14 @@ const INITIAL_DATA: PipelineData = {
 
 export default function DashboardPage() {
     // 1. Core State
-    const [currentStage, setCurrentStage] = useState<DashboardStage>("inputs");
+    const [currentStage, setCurrentStage] = useState<DashboardStage>("home");
     const [maxUnlockedStage, setMaxUnlockedStage] = useState(0);
     const [data, setData] = useState<PipelineData>(INITIAL_DATA);
     const [isLoading, setIsLoading] = useState(false);
 
     // 2. Navigation Helper
     const advanceStage = (nextStage: DashboardStage) => {
-        const stageOrder: DashboardStage[] = ["inputs", "recommendation", "upload", "roadmap", "export"];
+        const stageOrder: DashboardStage[] = ["home", "inputs", "recommendation", "upload", "roadmap", "export"];
         const nextIndex = stageOrder.indexOf(nextStage);
 
         if (nextIndex > maxUnlockedStage) {
@@ -184,6 +185,8 @@ export default function DashboardPage() {
     // 4. Render Content Switcher
     const renderStageContent = () => {
         switch (currentStage) {
+            case "home":
+                return <StudentDashboard />;
             case "inputs":
                 // InputsSection passes raw form state up
                 return (

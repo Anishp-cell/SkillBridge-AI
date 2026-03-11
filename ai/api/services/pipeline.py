@@ -10,7 +10,7 @@ from ai.syllabus_intelligence.topic_extractor import (
 from ai.syllabus_intelligence.unit_parser import split_into_units
 from ai.syllabus_intelligence.skill_mapper import normalize_topics
 
-from ai.domain_recommendation.parser import recommend_domains
+from ai.domain_recommendation import recommend_domains
 from ai.roadmap.generator import generate_learning_roadmap
 from ai.exports.sheet_exporter import export_roadmap_to_sheets
 
