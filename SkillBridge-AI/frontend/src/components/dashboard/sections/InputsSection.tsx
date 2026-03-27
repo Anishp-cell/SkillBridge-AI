@@ -11,6 +11,9 @@ interface InputsSectionProps {
     isLoading?: boolean;
 }
 
+const PREDEFINED_SKILLS = ["Python", "JavaScript", "TypeScript", "Java", "C++", "C#", "HTML", "CSS", "SQL", "PostgreSQL", "MongoDB", "React", "Node.js", "Express", "Next.js", "Machine Learning", "Data Analysis", "Statistics", "Calculus", "Linear Algebra", "Algorithms", "Data Structures", "Docker", "Kubernetes", "AWS", "Azure", "GCP", "Git", "TensorFlow", "PyTorch", "Pandas", "NumPy", "Scikit Learn"];
+const PREDEFINED_INTERESTS = ["Machine Learning", "Artificial Intelligence", "Data Science", "Web Development", "Backend", "Frontend", "Full Stack", "Cybersecurity", "Cloud Computing", "DevOps", "Software Engineering"];
+
 export const InputsSection = ({ onComplete, initialData, isLoading = false }: InputsSectionProps) => {
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
@@ -36,22 +39,39 @@ export const InputsSection = ({ onComplete, initialData, isLoading = false }: In
     }, [initialData]);
     const [skillInput, setSkillInput] = useState("");
     const [interestInput, setInterestInput] = useState("");
+    
+    // Autocomplete states
+    const [showSkillSuggestions, setShowSkillSuggestions] = useState(false);
+    const [showInterestSuggestions, setShowInterestSuggestions] = useState(false);
+
     const [isSaving, setIsSaving] = useState(false);
     const { user } = useAuth();
 
-    const addSkill = () => {
-        if (skillInput && !formData.skills.includes(skillInput)) {
-            setFormData({ ...formData, skills: [...formData.skills, skillInput] });
+    const addSkill = (skillToAdd?: string) => {
+        const value = skillToAdd || skillInput;
+        if (value && !formData.skills.includes(value)) {
+            setFormData({ ...formData, skills: [...formData.skills, value] });
             setSkillInput("");
+            setShowSkillSuggestions(false);
         }
     };
 
-    const addInterest = () => {
-        if (interestInput && !formData.interests.includes(interestInput)) {
-            setFormData({ ...formData, interests: [...formData.interests, interestInput] });
+    const addInterest = (interestToAdd?: string) => {
+        const value = interestToAdd || interestInput;
+        if (value && !formData.interests.includes(value)) {
+            setFormData({ ...formData, interests: [...formData.interests, value] });
             setInterestInput("");
+            setShowInterestSuggestions(false);
         }
     };
+
+    const suggestedSkills = skillInput.trim() 
+        ? PREDEFINED_SKILLS.filter(s => s.toLowerCase().includes(skillInput.toLowerCase()) && !formData.skills.includes(s)) 
+        : [];
+        
+    const suggestedInterests = interestInput.trim() 
+        ? PREDEFINED_INTERESTS.filter(s => s.toLowerCase().includes(interestInput.toLowerCase()) && !formData.interests.includes(s)) 
+        : [];
 
     const handleSubmit = async () => {
         try {
@@ -125,21 +145,42 @@ export const InputsSection = ({ onComplete, initialData, isLoading = false }: In
                 <div className="min-h-[200px]">
                     {step === 1 && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-                            <div className="flex gap-3">
+                            <div className="relative flex gap-3">
                                 <input
                                     type="text"
                                     value={skillInput}
-                                    onChange={(e) => setSkillInput(e.target.value)}
+                                    onChange={(e) => {
+                                        setSkillInput(e.target.value);
+                                        setShowSkillSuggestions(true);
+                                    }}
+                                    onFocus={() => setShowSkillSuggestions(true)}
+                                    // Delay hide to allow click to register
+                                    onBlur={() => setTimeout(() => setShowSkillSuggestions(false), 200)}
                                     className="flex-1 px-6 py-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
                                     placeholder="e.g. Python, React, Design"
                                     onKeyPress={(e) => e.key === "Enter" && addSkill()}
                                 />
                                 <button
-                                    onClick={addSkill}
+                                    onClick={() => addSkill()}
                                     className="px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
                                 >
                                     Add
                                 </button>
+
+                                {/* Autocomplete Dropdown */}
+                                {showSkillSuggestions && suggestedSkills.length > 0 && (
+                                    <div className="absolute top-full left-0 right-32 mt-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-xl overflow-hidden z-50 max-h-48 overflow-y-auto">
+                                        {suggestedSkills.map(suggestion => (
+                                            <button
+                                                key={suggestion}
+                                                onMouseDown={() => addSkill(suggestion)}
+                                                className="w-full text-left px-6 py-3 text-sm font-bold text-zinc-700 dark:text-zinc-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                            >
+                                                {suggestion}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 {formData.skills.map((skill: string) => (
@@ -159,21 +200,42 @@ export const InputsSection = ({ onComplete, initialData, isLoading = false }: In
 
                     {step === 2 && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-                            <div className="flex gap-3">
+                            <div className="relative flex gap-3">
                                 <input
                                     type="text"
                                     value={interestInput}
-                                    onChange={(e) => setInterestInput(e.target.value)}
+                                    onChange={(e) => {
+                                        setInterestInput(e.target.value);
+                                        setShowInterestSuggestions(true);
+                                    }}
+                                    onFocus={() => setShowInterestSuggestions(true)}
+                                    // Delay hide to allow click to register
+                                    onBlur={() => setTimeout(() => setShowInterestSuggestions(false), 200)}
                                     className="flex-1 px-6 py-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
                                     placeholder="e.g. AI, Web Dev, Finance"
                                     onKeyPress={(e) => e.key === "Enter" && addInterest()}
                                 />
                                 <button
-                                    onClick={addInterest}
+                                    onClick={() => addInterest()}
                                     className="px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
                                 >
                                     Add
                                 </button>
+
+                                {/* Autocomplete Dropdown */}
+                                {showInterestSuggestions && suggestedInterests.length > 0 && (
+                                    <div className="absolute top-full left-0 right-32 mt-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-xl overflow-hidden z-50 max-h-48 overflow-y-auto">
+                                        {suggestedInterests.map(suggestion => (
+                                            <button
+                                                key={suggestion}
+                                                onMouseDown={() => addInterest(suggestion)}
+                                                className="w-full text-left px-6 py-3 text-sm font-bold text-zinc-700 dark:text-zinc-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400 transition-colors"
+                                            >
+                                                {suggestion}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 {formData.interests.map((interest: string) => (

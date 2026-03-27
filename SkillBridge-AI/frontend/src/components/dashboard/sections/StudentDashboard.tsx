@@ -6,7 +6,8 @@ import { useAuth } from "@/features/auth/AuthContext";
 import { StatsCard } from "../widgets/StatsCard";
 import { ActivityGrid } from "../widgets/ActivityGrid";
 import { ProgressChart } from "../widgets/ProgressChart";
-import { QuizCard } from "../widgets/QuizCard";
+import { ResumeAnalyzerWidget } from "../widgets/ResumeAnalyzerWidget";
+import { BacklogManagerWidget } from "../widgets/BacklogManagerWidget";
 
 // -----------------------
 // Mock Data Generators
@@ -53,14 +54,6 @@ function generateWeeklyProgress(totalWeeks: number) {
     return data;
 }
 
-const MOCK_QUIZZES = [
-    { id: "1", topic: "Python Fundamentals", questions: 10, score: 9, total: 10, difficulty: "Easy" as const, completedAt: "2026-03-10" },
-    { id: "2", topic: "Data Structures & Algorithms", questions: 15, score: 11, total: 15, difficulty: "Medium" as const, completedAt: "2026-03-08" },
-    { id: "3", topic: "Machine Learning Basics", questions: 12, score: 7, total: 12, difficulty: "Medium" as const, completedAt: "2026-03-05" },
-    { id: "4", topic: "Deep Learning & Neural Nets", questions: 10, difficulty: "Hard" as const },
-    { id: "5", topic: "Linear Algebra for ML", questions: 8, score: 6, total: 8, difficulty: "Easy" as const, completedAt: "2026-03-01" },
-    { id: "6", topic: "Statistics & Probability", questions: 12, difficulty: "Medium" as const },
-];
 
 const MOCK_SKILLS = [
     { name: "Python", level: 85 },
@@ -74,12 +67,14 @@ const MOCK_SKILLS = [
 // -----------------------
 // Tab Types
 // -----------------------
-type DashboardTab = "overview" | "progress" | "activity";
+type DashboardTab = "overview" | "progress" | "activity" | "resume" | "backlogs";
 
 const tabs: { id: DashboardTab; label: string; icon: string }[] = [
     { id: "overview", label: "Overview", icon: "📋" },
     { id: "progress", label: "Progress", icon: "📈" },
     { id: "activity", label: "Activity", icon: "⚡" },
+    { id: "resume", label: "Resume", icon: "📄" },
+    { id: "backlogs", label: "Backlogs", icon: "📚" },
 ];
 
 // -----------------------
@@ -93,13 +88,6 @@ export const StudentDashboard = () => {
     const activityData = useMemo(() => generateActivityData(), []);
     const weeklyProgress = useMemo(() => generateWeeklyProgress(12), []);
 
-    const completedQuizzes = MOCK_QUIZZES.filter(q => q.score !== undefined);
-    const avgScore = completedQuizzes.length > 0
-        ? Math.round(completedQuizzes.reduce((sum, q) => sum + (q.score! / q.total!) * 100, 0) / completedQuizzes.length)
-        : 0;
-    const highestScore = completedQuizzes.length > 0
-        ? Math.round(Math.max(...completedQuizzes.map(q => (q.score! / q.total!) * 100)))
-        : 0;
 
     const displayName = user?.displayName || user?.email?.split("@")[0] || "Student";
 
@@ -133,9 +121,9 @@ export const StudentDashboard = () => {
             {/* ===== STATS CARDS ===== */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <StatsCard icon="📅" label="Weeks Completed" value={weeklyProgress.length} color="blue" delay={0.1} />
-                <StatsCard icon="💬" label="Quizzes Taken" value={completedQuizzes.length} color="purple" delay={0.15} />
-                <StatsCard icon="📊" label="Average Score" value={avgScore} suffix="%" color="green" delay={0.2} />
-                <StatsCard icon="🏆" label="Highest Score" value={highestScore} suffix="%" color="amber" delay={0.25} />
+                <StatsCard icon="🔥" label="Active Streak" value={14} color="purple" delay={0.15} />
+                <StatsCard icon="📈" label="Skill Progress" value={65} suffix="%" color="green" delay={0.2} />
+                <StatsCard icon="🏆" label="Highest Readiness" value={82} suffix="%" color="amber" delay={0.25} />
             </div>
 
             {/* ===== TAB BAR ===== */}
@@ -212,27 +200,7 @@ export const StudentDashboard = () => {
                             </div>
                         </div>
 
-                        {/* Recent Quizzes */}
-                        <div>
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-black text-zinc-900 dark:text-white tracking-tight">
-                                    🧠 Quizzes
-                                </h3>
-                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                                    {completedQuizzes.length} / {MOCK_QUIZZES.length} completed
-                                </span>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {MOCK_QUIZZES.map((quiz, i) => (
-                                    <QuizCard
-                                        key={quiz.id}
-                                        quiz={quiz}
-                                        delay={i * 0.05}
-                                        onStart={(id) => console.log("Start quiz:", id)}
-                                    />
-                                ))}
-                            </div>
-                        </div>
+
                     </motion.div>
                 )}
 
@@ -247,60 +215,7 @@ export const StudentDashboard = () => {
                     >
                         <ProgressChart data={weeklyProgress} />
 
-                        {/* Quiz Score Breakdown */}
-                        <div className="bg-white dark:bg-zinc-900 p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-xl">
-                            <h3 className="text-lg font-black text-zinc-900 dark:text-white tracking-tight mb-6">
-                                Quiz Score History
-                            </h3>
-                            {completedQuizzes.length > 0 ? (
-                                <div className="space-y-3">
-                                    {completedQuizzes.map((q, i) => {
-                                        const pct = Math.round((q.score! / q.total!) * 100);
-                                        return (
-                                            <motion.div
-                                                key={q.id}
-                                                initial={{ opacity: 0, x: -10 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: i * 0.05 }}
-                                                className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl"
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black ${
-                                                        pct >= 80
-                                                            ? "bg-green-100 dark:bg-green-900/30 text-green-600"
-                                                            : pct >= 50
-                                                            ? "bg-amber-100 dark:bg-amber-900/30 text-amber-600"
-                                                            : "bg-red-100 dark:bg-red-900/30 text-red-600"
-                                                    }`}>
-                                                        {pct}%
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-bold text-zinc-900 dark:text-white">
-                                                            {q.topic}
-                                                        </p>
-                                                        <p className="text-[10px] text-zinc-400 font-medium">
-                                                            {q.score}/{q.total} correct · {q.completedAt && new Date(q.completedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex-1 max-w-[120px] h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden ml-4">
-                                                    <motion.div
-                                                        className={`h-full rounded-full ${
-                                                            pct >= 80 ? "bg-green-500" : pct >= 50 ? "bg-amber-500" : "bg-red-500"
-                                                        }`}
-                                                        initial={{ width: 0 }}
-                                                        animate={{ width: `${pct}%` }}
-                                                        transition={{ duration: 0.8, delay: 0.2 + i * 0.1 }}
-                                                    />
-                                                </div>
-                                            </motion.div>
-                                        );
-                                    })}
-                                </div>
-                            ) : (
-                                <p className="text-sm text-zinc-400 italic">No quizzes completed yet. Start one from the Overview tab!</p>
-                            )}
-                        </div>
+
                     </motion.div>
                 )}
 
@@ -336,6 +251,30 @@ export const StudentDashboard = () => {
                                 </p>
                             </div>
                         </div>
+                    </motion.div>
+                )}
+
+                {activeTab === "resume" && (
+                    <motion.div
+                        key="resume"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <ResumeAnalyzerWidget />
+                    </motion.div>
+                )}
+
+                {activeTab === "backlogs" && (
+                    <motion.div
+                        key="backlogs"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <BacklogManagerWidget />
                     </motion.div>
                 )}
             </AnimatePresence>

@@ -7,7 +7,8 @@ load_dotenv()
 
 from ai.api.routes.roadmap import router as roadmap_router
 from ai.api.routes.recommendation import router as recommendation_router
-
+from ai.api.routes.resume import router as resume_router
+from ai.api.routes.backlog import router as backlog_router
 app = FastAPI(
     title="SkillBridgeAI API",
     version="0.1.0"
@@ -29,7 +30,8 @@ api_v1 = APIRouter(prefix="/api/v1")
 
 # Include sub-routers
 api_v1.include_router(recommendation_router)
-# Note: recommendation_router has prefix="/ai", so result is /api/v1/ai/recommend-domain
+api_v1.include_router(resume_router)
+api_v1.include_router(backlog_router)# Note: recommendation_router has prefix="/ai", so result is /api/v1/ai/recommend-domain
 
 # Roadmap router was mounted at root /roadmap in previous version.
 # To keep DashboardPage.tsx working (which calls localhost:8000/roadmap/generate),

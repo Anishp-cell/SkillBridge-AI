@@ -51,7 +51,7 @@ const INITIAL_DATA: PipelineData = {
 export default function DashboardPage() {
     // 1. Core State
     const [currentStage, setCurrentStage] = useState<DashboardStage>("home");
-    const [maxUnlockedStage, setMaxUnlockedStage] = useState(0);
+    const [maxUnlockedStage, setMaxUnlockedStage] = useState(1);
     const [data, setData] = useState<PipelineData>(INITIAL_DATA);
     const [isLoading, setIsLoading] = useState(false);
 

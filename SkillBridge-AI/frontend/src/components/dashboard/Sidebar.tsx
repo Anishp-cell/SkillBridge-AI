@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useAuth } from "@/features/auth/AuthContext";
 
 export type DashboardStage = "home" | "inputs" | "recommendation" | "upload" | "roadmap" | "export";
@@ -29,9 +30,14 @@ export const Sidebar = ({ currentStage, maxUnlockedStage, onStageChange }: Sideb
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="text-2xl font-black text-blue-600 tracking-tighter mb-12"
+                    className="mb-12"
                 >
-                    SkillBridge AI
+                    <button 
+                        onClick={() => onStageChange("home")}
+                        className="text-2xl font-black text-blue-600 tracking-tighter hover:text-blue-500 transition-colors text-left"
+                    >
+                        SkillBridge AI
+                    </button>
                 </motion.div>
 
                 <nav className="space-y-1">
