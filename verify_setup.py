@@ -1,6 +1,8 @@
 import requests
 import sys
 
+sys.stdout.reconfigure(encoding='utf-8')
+
 def verify_backend():
     base_url = "http://localhost:8000"
     print(f"Verifying backend at {base_url}...")

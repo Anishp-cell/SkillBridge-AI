@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
@@ -46,3 +46,17 @@ def mock_onboarding(data: dict):
     # In a stateless backend, we just acknowledge.
     # Frontend passes data locally to next step anyway.
     return {"status": "success", "message": "Onboarding data received (mock)"}
+
+@app.get("/")
+async def root():
+    return {"message": "Welcome to SkillBridge AI API"}
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
+
+@app.get("/api/v1/users/me")
+async def get_current_user():
+    raise HTTPException(status_code=401, detail="Not authenticated")
+
+

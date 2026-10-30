@@ -3,207 +3,176 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useAuth } from "@/features/auth/AuthContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import CareerPathMotion from "@/components/CareerPathMotion";
+import NotebookSection from "@/components/NotebookSection";
+import YouTubeFeedSection from "@/components/YouTubeFeedSection";
+import SearchBarSection from "@/components/SearchBarSection";
+import OverwhelmedDeskSection from "@/components/OverwhelmedDeskSection";
+import HeroFlashlightBg from "@/components/HeroFlashlightBg";
 import "./homepage.css";
 
 const allTags = ["React", "FastAPI", "Python", "SQL", "Auth", "Deployment", "CI/CD", "Testing"];
 
-const SyllabusPreview = () => {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-
-  const skillNodes = [
-    { id: "react", label: "React", x: -100, y: -80 },
-    { id: "python", label: "Python", x: 120, y: -60 },
-    { id: "sql", label: "SQL", x: -90, y: 90 },
-    { id: "fastapi", label: "FastAPI", x: 130, y: 80 },
-    { id: "cloud", label: "Cloud", x: 0, y: -130 },
-    { id: "ai", label: "AI/ML", x: 0, y: 130 },
+const LostStudentsSection = () => {
+  const cards = [
+    {
+      icon: "📚",
+      title: "Disconnected Context",
+      description: "Your syllabus tells you what to study, not why it matters.",
+      gradient: "from-blue-500/10 to-purple-500/20",
+      accent: "bg-blue-500",
+      delay: 0.1
+    },
+    {
+      icon: "🧭",
+      title: "Generic Guidance",
+      description: "Career advice online ignores what you’re already learning.",
+      gradient: "from-orange-500/10 to-red-500/20",
+      accent: "bg-orange-500",
+      delay: 0.2
+    },
+    {
+      icon: "🎯",
+      title: "Missing Direction",
+      description: "Students don’t fail because they lack talent — they fail due to lack of direction.",
+      gradient: "from-green-500/10 to-emerald-500/20",
+      accent: "bg-green-500",
+      delay: 0.3
+    }
   ];
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    setMousePos({
-      x: e.clientX - rect.left - rect.width / 2,
-      y: e.clientY - rect.top - rect.height / 2,
-    });
-  };
-
   return (
-    <div
-      ref={containerRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => setMousePos({ x: 0, y: 0 })}
-      className="relative h-[550px] md:h-[650px] w-full rounded-3xl border border-white/10 overflow-hidden group bg-black/40 backdrop-blur-sm shadow-2xl"
-    >
-      <div className="absolute inset-0 bg-grid opacity-10 pointer-events-none" />
-
-      <div className="neural-container h-full w-full">
-        {/* Central Pulsing Core */}
+    <section className="py-24 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
         <motion.div
-          animate={{
-            scale: [1, 1.1, 1],
-            opacity: [0.5, 0.8, 0.5]
-          }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          className="core-glow"
-        />
-        <div className="relative z-20 w-8 h-8 bg-blue-500 rounded-full shadow-[0_0_30px_#3b82f6] animate-pulse" />
-
-        {/* Connection Lines (SVG) */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
-          {skillNodes.map((node) => (
-            <motion.line
-              key={`line-${node.id}`}
-              x1="50%"
-              y1="50%"
-              x2={`${50 + (node.x + mousePos.x * 0.1) / 4}%`}
-              y2={`${50 + (node.y + mousePos.y * 0.1) / 4}%`}
-              className="connection-line"
-              style={{
-                stroke: hoveredNode === node.id ? "rgba(59, 130, 246, 0.6)" : "rgba(59, 130, 246, 0.15)",
-                strokeWidth: hoveredNode === node.id ? 2 : 1
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-10 tracking-tight relative z-10">
+            Why most students feel{' '}
+            <motion.span
+              whileHover={{
+                scale: 1.05,
+                filter: "drop-shadow(0 0 20px rgba(239,68,68,0.9))"
               }}
-            />
+              className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-500 inline-block py-2 cursor-default transition-all duration-300"
+            >
+              lost after lectures
+            </motion.span>
+          </h2>
+        </motion.div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {cards.map((card, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: card.delay, duration: 0.6 }}
+              whileHover={{ y: -5, scale: 1.05 }}
+              className="relative group cursor-default h-full"
+            >
+              {/* Hover Animated Gradient Background */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-xl`} />
+
+              <div className="relative h-full bg-zinc-900/60 backdrop-blur-xl border border-white/5 group-hover:border-white/10 p-10 rounded-[2rem] transition-colors duration-500 flex flex-col shadow-2xl">
+                <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center text-3xl mb-8 border border-white/10 group-hover:scale-110 transition-transform duration-500 shadow-xl shadow-black/50">
+                  {card.icon}
+                </div>
+
+                <h3 className="text-2xl font-bold text-white mb-4 tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-zinc-400 transition-all">
+                  {card.title}
+                </h3>
+
+                <p className="text-zinc-400 text-lg leading-relaxed font-light">
+                  {card.description}
+                </p>
+
+                {/* Bottom accent line */}
+                <div className={`absolute bottom-0 left-10 right-10 h-[3px] ${card.accent} rounded-t-lg opacity-0 group-hover:opacity-100 transition-all duration-700 translate-y-2 group-hover:translate-y-0 shadow-[0_-5px_20px_rgba(255,255,255,0.1)]`} />
+              </div>
+            </motion.div>
           ))}
-        </svg>
-
-        {/* Floating Skill Nodes */}
-        {skillNodes.map((node) => (
-          <motion.div
-            key={node.id}
-            className="skill-node-wrapper"
-            onMouseEnter={() => setHoveredNode(node.id)}
-            onMouseLeave={() => setHoveredNode(null)}
-            animate={{
-              x: node.x + mousePos.x * 0.05,
-              y: node.y + mousePos.y * 0.05,
-            }}
-            transition={{ type: "spring", stiffness: 100, damping: 20 }}
-          >
-            <div className="skill-node-content">
-              {node.label}
-            </div>
-          </motion.div>
-        ))}
+        </div>
       </div>
+    </section>
+  );
+};
 
-      <div className="scan-line !opacity-20" />
+const AccuracyBar = () => {
+  const [filled, setFilled] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setFilled(true), 100); return () => clearTimeout(t); }, []);
+  return (
+    <div className="mt-5 bg-zinc-800/60 rounded-xl p-5 border border-white/5">
+      <div className="flex justify-between text-xs font-mono text-zinc-400 mb-3 uppercase tracking-widest">
+        <span>Avg. Accuracy Score</span>
+        <motion.span animate={{ opacity: filled ? 1 : 0 }} className="text-blue-400 font-black">94%</motion.span>
+      </div>
+      <div className="h-2.5 w-full bg-zinc-700 rounded-full overflow-hidden">
+        <motion.div
+          className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+          initial={{ width: 0 }}
+          animate={{ width: filled ? '94%' : 0 }}
+          transition={{ duration: 1, ease: 'easeOut', delay: 0.1 }}
+        />
+      </div>
+      <p className="text-zinc-500 text-xs mt-3 font-mono">Based on internal benchmark across 2,400+ syllabi.</p>
     </div>
   );
 };
 
-const TechPrism = () => {
-  const [rotation, setRotation] = useState({ x: 0, y: 0 });
-  const [hoveredNode, setHoveredNode] = useState<number | null>(null);
-
-  const nodes = [
-    { icon: "🎓", label: "Learn" },
-    { icon: "⚡", label: "Skill" },
-    { icon: "🚀", label: "Grow" },
-    { icon: "💼", label: "Job" },
-    { icon: "📈", label: "Rise" },
-    { icon: "🎯", label: "Goal" },
-    { icon: "🧠", label: "AI" },
-    { icon: "🌐", label: "Net" },
-  ];
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    setRotation({ x: y / 20, y: -x / 20 });
-  };
-
+const FAQItem = ({ question, tag, tagColor, borderColor, children }: { question: string; tag?: string; tagColor?: string; borderColor?: string; children: React.ReactNode }) => {
+  const [open, setOpen] = useState(false);
   return (
-    <div
-      className="prism-container perspective-1000"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => setRotation({ x: 0, y: 0 })}
+    <motion.div
+      layout
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      className={`rounded-2xl border transition-all duration-300 overflow-hidden ${open
+          ? `border-l-2 ${borderColor ?? 'border-l-blue-500'} border-t border-r border-b border-white/10 shadow-[0_0_24px_rgba(59,130,246,0.08)] bg-zinc-900/60`
+          : 'border border-white/5 bg-zinc-900/30'
+        }`}
     >
-      <motion.div
-        className="prism-surface"
-        animate={{ rotateX: rotation.x, rotateY: rotation.y }}
-        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full p-7 flex justify-between items-center gap-4 text-left cursor-default"
       >
-        {/* Revolving Rings */}
-        {[1, 2, 3].map((i) => (
-          <motion.div
-            key={i}
-            className="prism-ring"
-            style={{
-              width: `${180 + i * 50}px`,
-              height: `${180 + i * 50}px`
-            }}
-            animate={{
-              rotateX: [0, 360],
-              rotateY: [0, 360],
-              rotateZ: [0, 360]
-            }}
-            transition={{
-              duration: 15 + i * 5,
-              repeat: Infinity,
-              ease: "linear",
-              repeatType: "loop"
-            }}
-          />
-        ))}
-
-        {/* Central Core: The "Bridge" */}
-        <div className="prism-core-sphere flex flex-col items-center justify-center text-center z-10 bg-black/50 backdrop-blur-sm border border-blue-500/30">
-          <div className="text-2xl mb-1">🌉</div>
-          <div className="text-[10px] font-bold text-blue-300 uppercase tracking-widest">Bridge</div>
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="font-bold text-lg text-white">{question}</span>
+          {tag && (
+            <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full ${tagColor}`}>
+              {tag}
+            </span>
+          )}
         </div>
+        <motion.span
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.25, ease: 'easeInOut' }}
+          className="text-blue-500 flex-shrink-0 text-xl leading-none"
+        >
+          ↓
+        </motion.span>
+      </button>
 
-        {/* Orbiting Career Nodes */}
-        {nodes.map((node, i) => (
+      <AnimatePresence initial={false}>
+        {open && (
           <motion.div
-            key={i}
-            className="absolute flex items-center justify-center"
-            style={{
-              width: '40px',
-              height: '40px',
-              top: '50%',
-              left: '50%',
-              marginLeft: '-20px',
-              marginTop: '-20px',
-            }}
-            animate={{
-              x: Math.cos(i * (Math.PI / 4)) * 140,
-              y: Math.sin(i * (Math.PI / 4)) * 140,
-              rotateZ: -rotation.y * 2 // Counter-rotate to keep upright if desired, or let it spin
-            }}
-            transition={{
-              duration: 0, // Direct control via animate prop for position
-            }}
+            key="content"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="px-7 pb-7 border-t border-white/5 pt-5"
           >
-            <motion.div
-              className="w-full h-full bg-black/80 border border-blue-500/50 rounded-full flex items-center justify-center text-lg shadow-[0_0_15px_rgba(59,130,246,0.5)] cursor-pointer hover:scale-125 hover:border-blue-400 transition-all font-bold"
-              animate={{
-                y: [0, -5, 0],
-              }}
-              transition={{
-                duration: 2,
-                delay: i * 0.2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              onMouseEnter={() => setHoveredNode(i)}
-              onMouseLeave={() => setHoveredNode(null)}
-            >
-              {hoveredNode === i ? (
-                <span className="text-[10px] font-mono text-white">{node.label}</span>
-              ) : (
-                <span>{node.icon}</span>
-              )}
-            </motion.div>
+            {children}
           </motion.div>
-        ))}
-      </motion.div>
-    </div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 
@@ -278,27 +247,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden">
-        <motion.div
-          className="static-bg"
-          initial={{ filter: "blur(20px)" }}
-          animate={{ filter: "blur(0px)" }}
-          transition={{ duration: 1.5, delay: 1, ease: "easeOut" }}
-        />
-
-        <motion.video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover z-0 opacity-40"
-          initial={{ filter: "blur(20px)" }}
-          animate={{ filter: "blur(0px)" }}
-          transition={{ duration: 1.5, delay: 1, ease: "easeOut" }}
-        >
-          <source src="/hero-bg.mp4" type="video/mp4" />
-        </motion.video>
-
-        <div className="absolute inset-0 bg-black/40 z-0" />
+        <HeroFlashlightBg />
 
         <motion.div
           className="relative z-10 pt-24 md:pt-32"
@@ -306,14 +255,6 @@ export default function Home() {
           initial="hidden"
           animate="visible"
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="mb-6 inline-block px-4 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 backdrop-blur-md"
-          >
-            <span className="text-blue-400 text-xs font-bold uppercase tracking-widest">v2.0 is now live</span>
-          </motion.div>
 
           <motion.h1
             variants={containerVariants}
@@ -343,16 +284,6 @@ export default function Home() {
             AI-powered career roadmaps that turn your college syllabus into a professional edge.
             Stop guessing, start mastering.
           </motion.p>
-
-          <motion.div variants={itemVariants} className="flex justify-center gap-6">
-            <Link
-              href="/login"
-              className="px-12 py-5 bg-gradient-to-r from-purple-600 via-blue-600 to-pink-400 text-white rounded-full text-xl font-bold hover:scale-105 hover:shadow-[0_0_40px_rgba(139,92,246,0.5)] transition-all shadow-2xl border border-white/10 relative overflow-hidden group"
-            >
-              <span className="relative z-10">Get Started</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-600 to-pink-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl" />
-            </Link>
-          </motion.div>
         </motion.div>
 
         <motion.div
@@ -379,148 +310,21 @@ export default function Home() {
         viewport={{ once: true }}
         transition={{ duration: 1 }}
       >
+        <SearchBarSection />
+
         {/* Career Path in Motion */}
         <div className="py-20">
           <CareerPathMotion />
         </div>
 
-        {/* Why most students feel lost */}
-        <section className="py-24 relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid opacity-10" />
-          <div className="text-center max-w-4xl mx-auto px-6 relative z-10">
-            <h2 className="text-3xl md:text-5xl font-bold mb-16 leading-tight">
-              Why most students feel <span className="text-blue-500">lost</span> after lectures
-            </h2>
-            <div className="space-y-12">
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="text-2xl md:text-3xl text-zinc-500 font-light"
-              >
-                "Your syllabus tells you what to study, <br /><span className="text-zinc-300">not why it matters.</span>"
-              </motion.p>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-2xl md:text-3xl text-zinc-500 font-light"
-              >
-                "Career advice online ignores <br /><span className="text-zinc-300">what you’re already learning.</span>"
-              </motion.p>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="pt-8"
-              >
-                <p className="text-2xl md:text-3xl text-white font-medium bg-blue-500/10 p-8 rounded-3xl border border-blue-500/20 inline-block">
-                  "Students don’t fail because they lack talent — <br />they fail due to <span className="text-blue-400">lack of direction.</span>"
-                </p>
-              </motion.div>
-            </div>
-          </div>
-        </section>
+        <NotebookSection />
+        <YouTubeFeedSection />
+        <OverwhelmedDeskSection />
 
-        {/* Neural Engine + What is NOT Combined Section */}
-        <section className="py-20">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left Column: Interactive Element */}
-            <div className="scroll-mt-32 order-2 lg:order-1">
-              <SyllabusPreview />
-            </div>
+        <div className="border-t border-white/5" />
+        <LostStudentsSection />
 
-            {/* Right Column: What SkillBridge is NOT */}
-            <div className="order-1 lg:order-2">
-              <h2 className="text-4xl md:text-5xl font-bold mb-10 leading-tight">
-                What SkillBridge AI is <br />
-                <span className="text-gradient">NOT</span> ❌
-              </h2>
 
-              <div className="space-y-6">
-                {[
-                  {
-                    title: "Not another generic roadmap",
-                    desc: "We don't give you a template. We build around YOUR college curriculum.",
-                    icon: "🚫"
-                  },
-                  {
-                    title: "Not random YouTube learning",
-                    desc: "No endlessly scrolling tutorials. You get targeted resources for specific gaps.",
-                    icon: "📺"
-                  },
-                  {
-                    title: "Not replacing your education",
-                    desc: "We don't compete with your degree. We make it actually useful for getting hired.",
-                    icon: "🎓"
-                  }
-                ].map((f, i) => (
-                  <motion.div
-                    key={i}
-                    whileHover={{ x: 10 }}
-                    className="glass-card p-6 rounded-2xl border-l-4 border-l-red-500/20 hover:border-l-red-500/50 transition-all flex items-start gap-4 group"
-                  >
-                    <div className="text-3xl opacity-80 group-hover:scale-110 transition-transform">{f.icon}</div>
-                    <div>
-                      <h3 className="text-lg font-bold mb-1">{f.title}</h3>
-                      <p className="text-zinc-500 text-sm leading-relaxed">{f.desc}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="mt-10">
-                <p className="text-xl font-medium text-white leading-relaxed">
-                  We align your syllabus with real career paths — <span className="text-blue-500">nothing more, nothing less.</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Problem -> Solution (Now Features) */}
-        <section id="features" className="py-32 scroll-mt-32">
-          <div className="grid md:grid-cols-2 gap-20 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-            >
-              <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight">
-                Powerful <br />
-                <span className="text-gradient">Platform Features.</span>
-              </h2>
-              <p className="text-zinc-400 text-lg mb-8 leading-relaxed">
-                Unlock your full potential with a suite of AI-driven tools designed to bridge the gap between education and employment.
-              </p>
-              <div className="space-y-6">
-                {[
-                  { t: "Smart Analysis", d: "Instantly extract skills from any syllabus or resume." },
-                  { t: "Dynamic Roadmap", d: "Personalized learning paths adapted to your goals." },
-                  { t: "Gap Bridging", d: "Identify missing skills and get resources to learn them." }
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-4">
-                    <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500 text-xs">✓</div>
-                    <div>
-                      <h4 className="font-bold text-white">{item.t}</h4>
-                      <p className="text-zinc-500 text-sm">{item.d}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="relative aspect-square flex items-center justify-center group"
-            >
-              <TechPrism />
-            </motion.div>
-          </div>
-        </section>
 
         {/* How it Works */}
         <section id="how-it-works" className="py-32 scroll-mt-32">
@@ -563,27 +367,71 @@ export default function Home() {
         {/* FAQ Section */}
         <section id="faq" className="py-32 scroll-mt-32">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">Frequently Asked <span className="text-blue-500">Questions</span></h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Got questions about{' '}
+              <span className="text-blue-500">SkillBridge?</span>
+            </h2>
             <p className="text-zinc-400 text-lg">Everything you need to know about SkillBridge AI.</p>
           </div>
 
-          <div className="max-w-3xl mx-auto space-y-4">
-            {[
-              { q: "How accurate is the AI syllabus scanning?", a: "Our AI is trained on thousands of academic documents and industry job descriptions, ensuring a high level of accuracy in extracting core skills and mapping them to professional requirements." },
-              { q: "Is SkillBridge AI free for students?", a: "Yes, our core features including syllabus scanning and roadmap generation are completely free for individual students." },
-              { q: "What formats can I upload my syllabus in?", a: "Currently, we support PDF files as they are the most common format for academic syllabi." },
-              { q: "Can I export my roadmap to other platforms?", a: "Absolutely! You can export your roadmap to Google Sheets, with more integrations like Notion and Trello coming soon." }
-            ].map((item, i) => (
-              <details key={i} className="glass-card rounded-2xl group">
-                <summary className="p-6 cursor-pointer list-none flex justify-between items-center">
-                  <span className="font-bold text-lg">{item.q}</span>
-                  <span className="text-blue-500 group-open:rotate-180 transition-transform">↓</span>
-                </summary>
-                <div className="px-6 pb-6 text-zinc-400 leading-relaxed border-t border-white/5 pt-4">
-                  {item.a}
+          <div className="max-w-3xl mx-auto space-y-5">
+            <FAQItem question="How accurate is the AI syllabus scanning?" borderColor="border-l-blue-500">
+              <p className="text-zinc-400 leading-relaxed">Our AI is trained on thousands of academic documents and industry job descriptions, ensuring a high level of accuracy in extracting core skills and mapping them to professional requirements.</p>
+              <AccuracyBar />
+            </FAQItem>
+
+            <FAQItem question="Is SkillBridge AI free for students?" tag="Most Asked" tagColor="bg-green-500/15 text-green-400 border border-green-500/20" borderColor="border-l-green-500">
+              <p className="text-zinc-400 leading-relaxed">
+                Yes — our core features including syllabus scanning and roadmap generation are completely{' '}
+                <span className="text-blue-400 text-xl font-black tracking-tight">free</span>{' '}
+                for individual students. No credit card, no trial period.
+              </p>
+            </FAQItem>
+
+            <FAQItem question="What formats can I upload my syllabus in?" borderColor="border-l-purple-500">
+              <p className="text-zinc-400 leading-relaxed mb-5">We support the most common academic document format right now, with more on the way.</p>
+              <div className="flex flex-wrap gap-3 items-center">
+                <div className="flex items-center gap-2 px-4 py-2 bg-red-950/40 border border-red-500/30 rounded-xl">
+                  <div className="w-7 h-8 bg-red-600 rounded-sm flex items-center justify-center relative">
+                    <span className="text-white text-[8px] font-black">PDF</span>
+                    <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-900 rounded-sm" />
+                  </div>
+                  <span className="text-red-300 text-sm font-bold">PDF</span>
+                  <span className="text-green-400 text-xs ml-1">✓ Supported</span>
                 </div>
-              </details>
-            ))}
+                {['DOCX', 'Image Scan', 'Google Doc'].map(fmt => (
+                  <div key={fmt} className="flex items-center gap-2 px-4 py-2 bg-zinc-800/40 border border-zinc-700/40 rounded-xl opacity-50">
+                    <span className="text-zinc-400 text-sm font-bold">{fmt}</span>
+                    <span className="text-[9px] bg-zinc-700 text-zinc-400 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">soon</span>
+                  </div>
+                ))}
+              </div>
+            </FAQItem>
+
+            <FAQItem question="Can I export my roadmap to other platforms?" borderColor="border-l-amber-500">
+              <p className="text-zinc-400 leading-relaxed mb-5">Export your roadmap directly to the tools your team already uses.</p>
+              <div className="flex flex-wrap gap-3">
+                <span className="flex items-center gap-2 px-4 py-2 bg-green-950/40 border border-green-600/30 rounded-full text-green-400 text-sm font-bold">
+                  <span className="w-2 h-2 rounded-full bg-green-500" />Google Sheets
+                </span>
+                {[
+                  { name: 'Notion', cls: 'bg-zinc-800/60 border-zinc-600/30 text-zinc-300' },
+                  { name: 'Trello', cls: 'bg-blue-950/40 border-blue-600/30 text-blue-400' },
+                  { name: 'Obsidian', cls: 'bg-purple-950/40 border-purple-600/30 text-purple-400' },
+                ].map(p => (
+                  <span key={p.name} className={`flex items-center gap-2 px-4 py-2 border rounded-full text-sm font-bold opacity-50 ${p.cls}`}>
+                    {p.name}
+                    <span className="text-[9px] bg-white/10 text-zinc-400 px-1.5 py-0.5 rounded-full font-bold uppercase">soon</span>
+                  </span>
+                ))}
+              </div>
+            </FAQItem>
+
+            <div className="text-center pt-4">
+              <Link href="/login" className="text-zinc-500 text-sm hover:text-blue-400 transition-colors duration-200">
+                Still confused? Your roadmap will answer the rest. →
+              </Link>
+            </div>
           </div>
         </section>
       </motion.main>

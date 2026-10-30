@@ -271,3 +271,4 @@
     border-radius: 50%;
     box-shadow: 0 0 10px #3b82f6;
 }
+::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: 0.25s; animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1); }
