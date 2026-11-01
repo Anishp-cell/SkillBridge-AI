@@ -106,27 +106,8 @@ export default function Home() {
   const { user } = useAuth();
   const [activeStep, setActiveStep] = useState(0);
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.9,
-        ease: [0.22, 1, 0.36, 1] as const,
-        staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const },
-    },
-  };
+  const line1Words = ["Bridge", "the", "Gap."];
+  const line2Words = ["Build", "Your", "Future."];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -149,132 +130,227 @@ export default function Home() {
         />
       </div>
 
-      {/* Modern Fixed Navbar */}
-      <nav className="fixed top-0 w-full z-50 flex items-center justify-between px-8 md:px-12 py-6 backdrop-blur-xl border-b border-white/5 bg-black/50">
-        <div className="flex-1 flex items-center">
-          <Link href="/" className="text-2xl font-black text-white tracking-tighter flex items-center gap-2">
-            SkillBridge <span className="text-blue-500">AI</span>
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_#3b82f6]" />
+      {/* Unified Floating Navbar (3-piece symmetrical layout: Logo Capsule | Main Dock | Action Capsule) */}
+      <motion.header
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="fixed top-5 left-0 right-0 z-50 flex items-center justify-center px-4 md:px-8 pointer-events-none"
+      >
+        <div className="pointer-events-auto flex items-center justify-center gap-4 sm:gap-8 md:gap-14 lg:gap-20 max-w-7xl">
+          {/* Outside Left: Logo Placeholder Capsule (Exact same size & height as Bridge Now, shifted ~3 fingers left) */}
+          <Link href="/" className="flex items-center group/logo flex-shrink-0" title="Home">
+            <div className="relative h-[48px] w-[120px] sm:w-[150px] px-3.5 sm:px-4 rounded-full bg-gradient-to-br from-blue-500/10 via-white/[0.04] to-indigo-500/10 border border-blue-400/30 flex items-center justify-center shadow-[inset_0_0_12px_rgba(59,130,246,0.15),0_0_15px_rgba(59,130,246,0.2)] group-hover/logo:border-blue-400/70 group-hover/logo:shadow-[0_0_24px_rgba(59,130,246,0.45)] transition-all">
+              <img
+                src="/logo.png"
+                alt="Logo"
+                className="h-full w-auto max-h-[30px] object-contain filter drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                  const fallback = e.currentTarget.nextElementSibling;
+                  if (fallback) (fallback as HTMLElement).style.display = "flex";
+                }}
+              />
+              {/* Fallback geometric bridge icon + label if logo.png not yet placed */}
+              <div className="flex items-center gap-2 text-blue-400">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="5" cy="12" r="2.5" />
+                  <circle cx="19" cy="12" r="2.5" />
+                  <path d="M7.5 12h9" strokeDasharray="2 2" className="animate-pulse" />
+                  <path d="M5 8c2.5-3 5.5-4 7-4s4.5 1 7 4" opacity="0.8" />
+                </svg>
+                <span className="text-xs font-mono text-blue-300/90 font-bold uppercase tracking-wider">Logo</span>
+              </div>
+            </div>
           </Link>
-        </div>
 
-        <div className="hidden md:flex items-center gap-10">
-          <Link
-            href="#the-dilemma"
-            className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-400 hover:text-white transition-all"
-          >
-            The Dilemma
-          </Link>
-          <Link
-            href="#neural-bridge"
-            className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-400 hover:text-white transition-all"
-          >
-            The AI Bridge
-          </Link>
-          <Link
-            href="#how-it-works"
-            className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-400 hover:text-white transition-all"
-          >
-            How It Works
-          </Link>
-          <Link
-            href="#faq"
-            className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-400 hover:text-white transition-all"
-          >
-            FAQ
-          </Link>
-        </div>
+          {/* Center: The Navbar Dock (SkillBridge AI + Nav Links, ends cleanly after FAQ) */}
+          <div className="relative group">
+            {/* Subtle Ambient Electric Glow Aura behind the dock */}
+            <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-blue-600/30 via-sky-500/20 to-indigo-600/30 blur-lg opacity-40 group-hover:opacity-75 transition-opacity duration-500 -z-10" />
 
-        <div className="flex-1 flex justify-end items-center gap-4">
-          {user ? (
-            <Link
-              href="/dashboard"
-              className="px-7 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold transition-all text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(59,130,246,0.4)]"
-            >
-              Dashboard →
-            </Link>
-          ) : (
-            <Link
-              href="/login"
-              className="px-7 py-2.5 bg-white text-black hover:bg-zinc-200 rounded-full font-black transition-all text-xs uppercase tracking-wider shadow-lg shadow-white/5"
-            >
-              Get Started
-            </Link>
-          )}
+            <nav className="h-[48px] rounded-full bg-[#070a12]/90 backdrop-blur-2xl border border-white/[0.16] shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_12px_45px_rgba(0,0,0,0.9),0_0_25px_rgba(59,130,246,0.15)] px-4 sm:px-6 flex items-center gap-3 sm:gap-5 md:gap-6 transition-all duration-300 hover:border-blue-500/40 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_12px_50px_rgba(0,0,0,0.95),0_0_35px_rgba(59,130,246,0.28)] relative overflow-hidden">
+              {/* Ambient top hairline glow highlight */}
+              <div className="absolute inset-x-8 top-0 h-[1px] bg-gradient-to-r from-transparent via-sky-400/60 to-transparent pointer-events-none" />
+
+              {/* Inside Dock: Brand Name Wordmark */}
+              <Link
+                href="/"
+                className="flex items-center group/brand flex-shrink-0 transition-transform duration-200 hover:scale-105"
+                title="SkillBridge AI"
+              >
+                <span className="text-sm sm:text-base md:text-lg font-black tracking-tight text-white group-hover/brand:text-zinc-100 transition-colors whitespace-nowrap">
+                  SkillBridge{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-400 drop-shadow-[0_0_14px_rgba(96,165,250,0.55)]">
+                    AI
+                  </span>
+                </span>
+              </Link>
+
+              {/* Inside Dock: Subtle Divider */}
+              <div className="hidden md:block h-4 w-[1px] bg-white/10" />
+
+              {/* Inside Dock: Nav Links in exact site order (ends after FAQ) */}
+              <div className="hidden md:flex items-center gap-1 bg-white/[0.03] border border-white/[0.08] rounded-full p-1 shadow-inner">
+                {[
+                  { name: "The Dilemma", href: "#the-dilemma" },
+                  { name: "The AI Bridge", href: "#neural-bridge" },
+                  { name: "How It Works", href: "#how-it-works" },
+                  { name: "FAQ", href: "#faq" },
+                ].map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className="relative px-3.5 py-1.5 rounded-full text-xs md:text-[13px] font-semibold text-zinc-300 hover:text-white transition-all duration-200 hover:bg-blue-500/10 hover:border hover:border-blue-500/25 hover:shadow-[0_0_14px_rgba(59,130,246,0.3)]"
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+            </nav>
+          </div>
+
+          {/* Outside Right: Action Button Capsule (Exact same size & height as Logo, shifted ~3 fingers right) */}
+          <div className="flex items-center flex-shrink-0">
+            {user ? (
+              <Link
+                href="/dashboard"
+                className="relative group/btn inline-flex items-center justify-center p-[1px] overflow-hidden rounded-full transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(59,130,246,0.35)] hover:shadow-[0_0_30px_rgba(59,130,246,0.65)] h-[48px] w-[120px] sm:w-[150px]"
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-blue-500 via-sky-400 to-indigo-500 rounded-full opacity-80 group-hover/btn:opacity-100 transition-opacity" />
+                <span className="relative h-full w-full rounded-full bg-blue-600/90 text-white flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-xl group-hover/btn:bg-blue-500/90 transition-colors">
+                  <span>Dashboard</span>
+                  <span className="group-hover/btn:translate-x-0.5 transition-transform duration-200">→</span>
+                </span>
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="relative group/btn inline-flex items-center justify-center p-[1px] overflow-hidden rounded-full transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_22px_rgba(59,130,246,0.35)] hover:shadow-[0_0_32px_rgba(59,130,246,0.7)] h-[48px] w-[120px] sm:w-[150px]"
+                title="Start bridging your college syllabus"
+              >
+                {/* Luminous ambient gradient border ring */}
+                <span className="absolute inset-0 bg-gradient-to-r from-blue-500 via-sky-300 to-indigo-500 rounded-full opacity-85 group-hover/btn:opacity-100 blur-[1px] transition-opacity" />
+
+                {/* Inner dark glass button surface with light shimmer reflection on hover */}
+                <span className="relative h-full w-full rounded-full bg-[#080c16]/95 text-white flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-xl group-hover/btn:bg-[#0d1424] transition-colors overflow-hidden">
+                  {/* Shimmer light beam sweep */}
+                  <span className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform ease-out pointer-events-none" />
+
+                  <span>Bridge Now</span>
+                  <svg
+                    className="w-3.5 h-3.5 text-blue-400 group-hover/btn:translate-x-0.5 transition-transform duration-200"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </span>
+              </Link>
+            )}
+          </div>
         </div>
-      </nav>
+      </motion.header>
 
       {/* Hero Section with Interactive Flashlight Background */}
       <section className="relative h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden">
         <HeroFlashlightBg />
 
-        <motion.div
-          className="relative z-10 pt-20 md:pt-28 max-w-5xl mx-auto"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {/* Subtle Tag */}
+        <div className="relative z-10 pt-20 md:pt-24 max-w-5xl mx-auto flex flex-col items-center">
+          {/* 1. Main Title - First thing you see on load (Balanced scale with navbar) */}
+          <h1 className="text-4xl sm:text-6xl md:text-[68px] lg:text-[76px] font-extrabold tracking-tight mb-8 leading-[1.1]">
+            {/* Line 1: Bridge the Gap. (starts at 0.1s) */}
+            <div className="flex flex-wrap justify-center overflow-hidden">
+              {line1Words.map((word, i) => (
+                <motion.span
+                  key={i}
+                  initial={{ opacity: 0, y: 35, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  transition={{
+                    duration: 0.55,
+                    delay: 0.1 + i * 0.18,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="inline-block mr-[0.22em]"
+                >
+                  {word}
+                </motion.span>
+              ))}
+            </div>
+
+            {/* Line 2: Build Your Future. (starts after line 1 completes) */}
+            <div className="flex flex-wrap justify-center overflow-hidden">
+              <span className="text-gradient">
+                {line2Words.map((word, i) => (
+                  <motion.span
+                    key={i}
+                    initial={{ opacity: 0, y: 35, filter: "blur(10px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    transition={{
+                      duration: 0.55,
+                      delay: 0.85 + i * 0.18,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className="inline-block mr-[0.22em]"
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+              </span>
+            </div>
+          </h1>
+
+          {/* 2. Subtext & Tag - Appears AFTER both lines finish their transition */}
           <motion.div
-            variants={itemVariants}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 mb-8 backdrop-blur-md"
+            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.5, delay: 1.6, ease: "easeOut" }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 mb-6 backdrop-blur-md shadow-[0_0_15px_rgba(59,130,246,0.15)]"
           >
             <span className="text-xs font-mono text-blue-300 font-semibold">
               🏆 Google GDG TechSprint 1st Place Winner
             </span>
           </motion.div>
 
-          <motion.h1
-            variants={containerVariants}
-            className="text-5xl sm:text-6xl md:text-8xl font-extrabold tracking-tight mb-8 leading-[1.08]"
-          >
-            <div className="flex flex-wrap justify-center overflow-hidden">
-              {"Bridge the Gap.".split(" ").map((word, i) => (
-                <motion.span key={i} variants={itemVariants} className="inline-block mr-[0.22em]">
-                  {word}
-                </motion.span>
-              ))}
-            </div>
-            <div className="flex flex-wrap justify-center overflow-hidden">
-              <span className="text-gradient">
-                {"Build Your Future.".split(" ").map((word, i) => (
-                  <motion.span key={i} variants={itemVariants} className="inline-block mr-[0.22em]">
-                    {word}
-                  </motion.span>
-                ))}
-              </span>
-            </div>
-          </motion.h1>
-
           <motion.p
-            variants={itemVariants}
-            className="text-lg md:text-2xl text-zinc-400 max-w-3xl mx-auto mb-10 font-light leading-relaxed"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.75, ease: [0.16, 1, 0.3, 1] }}
+            className="text-base sm:text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 font-light leading-relaxed"
           >
             AI-powered career roadmaps that turn your university syllabus into a professional edge.
             Stop restarting from scratch—bridge what's missing.
           </motion.p>
 
-          <motion.div variants={itemVariants} className="flex flex-wrap justify-center items-center gap-4">
+          {/* 3. Action Buttons - Appear right after subtext */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.95, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-wrap justify-center items-center gap-4"
+          >
             <Link
               href="/login"
-              className="px-9 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold text-sm tracking-wide transition-all shadow-[0_0_30px_rgba(59,130,246,0.5)]"
+              className="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold text-sm tracking-wide transition-all shadow-[0_0_30px_rgba(59,130,246,0.5)] hover:scale-105 active:scale-95"
             >
               Scan Your Syllabus Free →
             </Link>
             <Link
               href="#neural-bridge"
-              className="px-8 py-3.5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 border border-white/10 rounded-full font-semibold text-sm tracking-wide transition-all"
+              className="px-7 py-3.5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 border border-white/10 rounded-full font-semibold text-sm tracking-wide transition-all hover:scale-105 active:scale-95"
             >
               See How It Connects
             </Link>
           </motion.div>
-        </motion.div>
+        </div>
 
         {/* Scroll Indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.6 }}
-          transition={{ delay: 1.8, duration: 1 }}
+          transition={{ delay: 2.2, duration: 0.8 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 select-none pointer-events-none"
         >
           <div className="w-5 h-9 border-2 border-white/20 rounded-full flex justify-center p-1">
