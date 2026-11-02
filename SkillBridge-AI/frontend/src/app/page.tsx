@@ -137,31 +137,82 @@ export default function Home() {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="fixed top-5 left-0 right-0 z-50 flex items-center justify-center px-4 md:px-8 pointer-events-none"
       >
-        <div className="pointer-events-auto flex items-center justify-center gap-4 sm:gap-8 md:gap-14 lg:gap-20 max-w-7xl">
-          {/* Outside Left: Logo Placeholder Capsule (Exact same size & height as Bridge Now, shifted ~3 fingers left) */}
-          <Link href="/" className="flex items-center group/logo flex-shrink-0" title="Home">
-            <div className="relative h-[48px] w-[120px] sm:w-[150px] px-3.5 sm:px-4 rounded-full bg-gradient-to-br from-blue-500/10 via-white/[0.04] to-indigo-500/10 border border-blue-400/30 flex items-center justify-center shadow-[inset_0_0_12px_rgba(59,130,246,0.15),0_0_15px_rgba(59,130,246,0.2)] group-hover/logo:border-blue-400/70 group-hover/logo:shadow-[0_0_24px_rgba(59,130,246,0.45)] transition-all">
-              <img
-                src="/logo.png"
-                alt="Logo"
-                className="h-full w-auto max-h-[30px] object-contain filter drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                  const fallback = e.currentTarget.nextElementSibling;
-                  if (fallback) (fallback as HTMLElement).style.display = "flex";
-                }}
-              />
-              {/* Fallback geometric bridge icon + label if logo.png not yet placed */}
-              <div className="flex items-center gap-2 text-blue-400">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="5" cy="12" r="2.5" />
-                  <circle cx="19" cy="12" r="2.5" />
-                  <path d="M7.5 12h9" strokeDasharray="2 2" className="animate-pulse" />
-                  <path d="M5 8c2.5-3 5.5-4 7-4s4.5 1 7 4" opacity="0.8" />
-                </svg>
-                <span className="text-xs font-mono text-blue-300/90 font-bold uppercase tracking-wider">Logo</span>
-              </div>
-            </div>
+        <div className="pointer-events-auto flex items-center justify-center gap-6 sm:gap-12 md:gap-20 lg:gap-28 xl:gap-32 max-w-7xl w-full">
+          {/* Outside Left: Animated 3-Node Bridge Logo — synced with hero text */}
+          <Link href="/" className="flex items-center group/logo flex-shrink-0" title="Home" aria-label="Home">
+            {/*
+              viewBox has 14px padding on all sides so nodes (r=10, stroke=3.2) never clip.
+              Node centers: Left(16,54) Top(40,14) Right(64,54)  — canvas 80×70
+            */}
+            <svg viewBox="0 0 80 70" className="w-[80px] h-[70px]" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <style>{`
+                  @keyframes nodePopIn {
+                    0%   { transform: scale(0); opacity: 0; }
+                    65%  { transform: scale(1.2); opacity: 1; }
+                    100% { transform: scale(1); opacity: 1; }
+                  }
+                  @keyframes drawBrA { from { stroke-dashoffset: 50; } to { stroke-dashoffset: 0; } }
+                  @keyframes drawBrB { from { stroke-dashoffset: 50; } to { stroke-dashoffset: 0; } }
+                  @keyframes drawBrC { from { stroke-dashoffset: 50; } to { stroke-dashoffset: 0; } }
+                  @keyframes sbPulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
+
+                  /* Nodes: synced with "Bridge the Gap." line 1 words (0.1s / 0.28s / 0.46s) */
+                  .sbn-l { transform-origin:16px 54px; animation: nodePopIn 0.42s ease-out 0.1s  both; }
+                  .sbn-t { transform-origin:40px 14px; animation: nodePopIn 0.42s ease-out 0.28s both; }
+                  .sbn-r { transform-origin:64px 54px; animation: nodePopIn 0.42s ease-out 0.46s both; }
+
+                  /* Bridges: synced with "Build Your Future." line 2 words (0.85s / 1.03s / 1.21s) */
+                  .sbr-a { stroke-dasharray:50; stroke-dashoffset:50; animation: drawBrA 0.48s cubic-bezier(0.4,0,0.2,1) 0.85s forwards; }
+                  .sbr-b { stroke-dasharray:50; stroke-dashoffset:50; animation: drawBrB 0.48s cubic-bezier(0.4,0,0.2,1) 1.03s forwards; }
+                  .sbr-c { stroke-dasharray:50; stroke-dashoffset:50; animation: drawBrC 0.48s cubic-bezier(0.4,0,0.2,1) 1.21s forwards; }
+
+                  /* Idle pulse */
+                  .sbp-l { animation: sbPulse 2.6s ease-in-out 1.4s infinite; }
+                  .sbp-t { animation: sbPulse 2.6s ease-in-out 1.6s infinite; }
+                  .sbp-r { animation: sbPulse 2.6s ease-in-out 1.8s infinite; }
+                `}</style>
+              </defs>
+
+              {/* Bridge A: Left → Top */}
+              <line className="sbr-a" x1="16" y1="54" x2="40" y2="14" stroke="#22d3ee" strokeWidth="3.5" strokeLinecap="round" />
+              {/* Bridge B: Top → Right */}
+              <line className="sbr-b" x1="40" y1="14" x2="64" y2="54" stroke="#22d3ee" strokeWidth="3.5" strokeLinecap="round" />
+              {/* Bridge C: Left → Right (bottom) */}
+              <line className="sbr-c" x1="16" y1="54" x2="64" y2="54" stroke="#22d3ee" strokeWidth="3.5" strokeLinecap="round" strokeDasharray="3 4" />
+
+              {/* LEFT NODE — Pink / Database */}
+              <g className="sbn-l sbp-l">
+                <circle cx="16" cy="54" r="11" stroke="#f472b6" strokeWidth="3.2" fill="#070a12" />
+                <ellipse cx="16" cy="50.5" rx="4.5" ry="1.5" stroke="#f472b6" strokeWidth="1.3" fill="none" />
+                <line x1="11.5" y1="50.5" x2="11.5" y2="55" stroke="#f472b6" strokeWidth="1.3" />
+                <line x1="20.5" y1="50.5" x2="20.5" y2="55" stroke="#f472b6" strokeWidth="1.3" />
+                <ellipse cx="16" cy="55"   rx="4.5" ry="1.5" stroke="#f472b6" strokeWidth="1.3" fill="none" />
+                <ellipse cx="16" cy="58.2" rx="4.5" ry="1.5" stroke="#f472b6" strokeWidth="1.3" fill="none" />
+              </g>
+
+              {/* TOP NODE — Cyan / Code */}
+              <g className="sbn-t sbp-t">
+                <circle cx="40" cy="14" r="11" stroke="#22d3ee" strokeWidth="3.2" fill="#070a12" />
+                <text x="40" y="18" textAnchor="middle" fontSize="9" fontFamily="monospace" fontWeight="bold" fill="#22d3ee" letterSpacing="-0.5">&lt;/&gt;</text>
+              </g>
+
+              {/* RIGHT NODE — Green / AI Brain */}
+              <g className="sbn-r sbp-r">
+                <circle cx="64" cy="54" r="11" stroke="#4ade80" strokeWidth="3.2" fill="#070a12" />
+                {/* Brain: two hemispheres with folds, center dividing line */}
+                {/* Left hemisphere */}
+                <path d="M64 49 Q60 48 58 51 Q56 54 58 57.5 Q60 60 64 59.5" stroke="#4ade80" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
+                {/* Right hemisphere */}
+                <path d="M64 49 Q68 48 70 51 Q72 54 70 57.5 Q68 60 64 59.5" stroke="#4ade80" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
+                {/* Center divide */}
+                <line x1="64" y1="49" x2="64" y2="59.5" stroke="#4ade80" strokeWidth="1" strokeLinecap="round"/>
+                {/* Left fold wrinkle */}
+                <path d="M59 52 Q61 54 59 56.5" stroke="#4ade80" strokeWidth="1" fill="none" strokeLinecap="round"/>
+                {/* Right fold wrinkle */}
+                <path d="M69 52 Q67 54 69 56.5" stroke="#4ade80" strokeWidth="1" fill="none" strokeLinecap="round"/>
+              </g>
+            </svg>
           </Link>
 
           {/* Center: The Navbar Dock (SkillBridge AI + Nav Links, ends cleanly after FAQ) */}
@@ -169,7 +220,7 @@ export default function Home() {
             {/* Subtle Ambient Electric Glow Aura behind the dock */}
             <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-blue-600/30 via-sky-500/20 to-indigo-600/30 blur-lg opacity-40 group-hover:opacity-75 transition-opacity duration-500 -z-10" />
 
-            <nav className="h-[48px] rounded-full bg-[#070a12]/90 backdrop-blur-2xl border border-white/[0.16] shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_12px_45px_rgba(0,0,0,0.9),0_0_25px_rgba(59,130,246,0.15)] px-4 sm:px-6 flex items-center gap-3 sm:gap-5 md:gap-6 transition-all duration-300 hover:border-blue-500/40 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_12px_50px_rgba(0,0,0,0.95),0_0_35px_rgba(59,130,246,0.28)] relative overflow-hidden">
+            <nav className="h-[54px] rounded-full bg-[#070a12]/90 backdrop-blur-2xl border border-white/[0.16] shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_12px_45px_rgba(0,0,0,0.9),0_0_25px_rgba(59,130,246,0.15)] px-5 sm:px-7 flex items-center gap-3 sm:gap-5 md:gap-6 transition-all duration-300 hover:border-blue-500/40 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_12px_50px_rgba(0,0,0,0.95),0_0_35px_rgba(59,130,246,0.28)] relative overflow-hidden">
               {/* Ambient top hairline glow highlight */}
               <div className="absolute inset-x-8 top-0 h-[1px] bg-gradient-to-r from-transparent via-sky-400/60 to-transparent pointer-events-none" />
 
@@ -210,36 +261,48 @@ export default function Home() {
             </nav>
           </div>
 
-          {/* Outside Right: Action Button Capsule (Exact same size & height as Logo, shifted ~3 fingers right) */}
+          {/* Outside Right: "Bridge Now" Action Trigger */}
+          {/* Outside Right: "Bridge Now" Action Trigger — Styled with Logo Tricolor Palette (Pink, Cyan, Green) */}
           <div className="flex items-center flex-shrink-0">
             {user ? (
               <Link
                 href="/dashboard"
-                className="relative group/btn inline-flex items-center justify-center p-[1px] overflow-hidden rounded-full transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(59,130,246,0.35)] hover:shadow-[0_0_30px_rgba(59,130,246,0.65)] h-[48px] w-[120px] sm:w-[150px]"
+                aria-label="Dashboard"
+                title="Go to Dashboard"
+                className="relative group/btn inline-flex items-center justify-center p-[1.5px] overflow-hidden rounded-full transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_24px_rgba(34,211,238,0.35)] hover:shadow-[0_0_35px_rgba(74,222,128,0.5)] h-[54px]"
               >
-                <span className="absolute inset-0 bg-gradient-to-r from-blue-500 via-sky-400 to-indigo-500 rounded-full opacity-80 group-hover/btn:opacity-100 transition-opacity" />
-                <span className="relative h-full w-full rounded-full bg-blue-600/90 text-white flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-xl group-hover/btn:bg-blue-500/90 transition-colors">
-                  <span>Dashboard</span>
-                  <span className="group-hover/btn:translate-x-0.5 transition-transform duration-200">→</span>
+                {/* Logo color gradient border: Pink -> Cyan -> Green */}
+                <span className="absolute inset-0 bg-gradient-to-r from-[#f472b6] via-[#22d3ee] to-[#4ade80] rounded-full opacity-80 group-hover/btn:opacity-100 transition-opacity duration-300" />
+                <span className="relative h-full px-5 sm:px-6 rounded-full bg-[#070a12] text-white flex items-center justify-center gap-2 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-xl group-hover/btn:bg-[#0c1220] transition-colors">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-cyan-200 to-emerald-300">Dashboard</span>
+                  <span className="text-cyan-400 group-hover/btn:translate-x-0.5 transition-transform duration-200">→</span>
                 </span>
               </Link>
             ) : (
               <Link
                 href="/login"
-                className="relative group/btn inline-flex items-center justify-center p-[1px] overflow-hidden rounded-full transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_22px_rgba(59,130,246,0.35)] hover:shadow-[0_0_32px_rgba(59,130,246,0.7)] h-[48px] w-[120px] sm:w-[150px]"
-                title="Start bridging your college syllabus"
+                aria-label="Bridge Now"
+                title="Bridge Now - Get Started"
+                className="relative group/btn inline-flex items-center justify-center p-[1.5px] overflow-hidden rounded-full transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_24px_rgba(34,211,238,0.25)] hover:shadow-[0_0_36px_rgba(244,114,182,0.4),0_0_30px_rgba(74,222,128,0.35)] h-[54px]"
               >
-                {/* Luminous ambient gradient border ring */}
-                <span className="absolute inset-0 bg-gradient-to-r from-blue-500 via-sky-300 to-indigo-500 rounded-full opacity-85 group-hover/btn:opacity-100 blur-[1px] transition-opacity" />
+                {/* Logo color gradient border: Pink -> Cyan -> Green */}
+                <span className="absolute inset-0 bg-gradient-to-r from-[#f472b6] via-[#22d3ee] to-[#4ade80] rounded-full opacity-85 group-hover/btn:opacity-100 transition-opacity duration-300" />
 
-                {/* Inner dark glass button surface with light shimmer reflection on hover */}
-                <span className="relative h-full w-full rounded-full bg-[#080c16]/95 text-white flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold tracking-wide backdrop-blur-xl group-hover/btn:bg-[#0d1424] transition-colors overflow-hidden">
-                  {/* Shimmer light beam sweep */}
-                  <span className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform ease-out pointer-events-none" />
+                {/* Inner dark surface with sleek tricolor aura */}
+                <span className="relative h-full px-5 sm:px-6 rounded-full bg-[#070a12] text-white flex items-center justify-center gap-2.5 text-xs sm:text-sm font-semibold tracking-wide backdrop-blur-xl group-hover/btn:bg-[#0b101c] transition-colors overflow-hidden">
+                  {/* Subtle color shimmer sweep on hover */}
+                  <span className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full duration-700 bg-gradient-to-r from-transparent via-cyan-400/15 to-transparent transition-transform ease-out pointer-events-none" />
 
-                  <span>Bridge Now</span>
+                  {/* Tricolor cyan accent dot */}
+                  <span className="w-2 h-2 rounded-full bg-[#22d3ee] shadow-[0_0_8px_#22d3ee] group-hover/btn:scale-125 transition-transform duration-200" />
+
+                  <span className="text-zinc-100 font-bold group-hover/btn:text-white transition-colors">
+                    Bridge Now
+                  </span>
+
+                  {/* Cyan connector arrow */}
                   <svg
-                    className="w-3.5 h-3.5 text-blue-400 group-hover/btn:translate-x-0.5 transition-transform duration-200"
+                    className="w-4 h-4 text-[#22d3ee] group-hover/btn:translate-x-1 group-hover/btn:text-[#4ade80] transition-all duration-200"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -302,46 +365,30 @@ export default function Home() {
             </div>
           </h1>
 
-          {/* 2. Subtext & Tag - Appears AFTER both lines finish their transition */}
-          <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.5, delay: 1.6, ease: "easeOut" }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 mb-6 backdrop-blur-md shadow-[0_0_15px_rgba(59,130,246,0.15)]"
-          >
-            <span className="text-xs font-mono text-blue-300 font-semibold">
-              🏆 Google GDG TechSprint 1st Place Winner
-            </span>
-          </motion.div>
-
+          {/* 2. Subtext - Styled with subtle emphasis words, visible yet clearly a subtagline */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.75, ease: [0.16, 1, 0.3, 1] }}
-            className="text-base sm:text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 font-light leading-relaxed"
+            transition={{ duration: 0.6, delay: 1.6, ease: [0.16, 1, 0.3, 1] }}
+            className="text-base sm:text-lg md:text-[21px] text-zinc-300/90 max-w-2xl mx-auto mb-10 font-normal leading-relaxed tracking-wide"
           >
-            AI-powered career roadmaps that turn your university syllabus into a professional edge.
-            Stop restarting from scratch—bridge what's missing.
+            Ever wonder why <span className="font-semibold text-white underline decoration-cyan-400/40 decoration-2 underline-offset-4">4 years</span> of college syllabus still doesn&apos;t feel enough for a <span className="font-semibold text-white">tech job</span>?{" "}
+            We show you <span className="font-semibold text-cyan-300">what&apos;s missing</span> and <span className="font-semibold text-emerald-300">what to learn next</span>.
           </motion.p>
 
-          {/* 3. Action Buttons - Appear right after subtext */}
+          {/* 3. Action Button - Appears right after subtext */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1.95, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-wrap justify-center items-center gap-4"
+            transition={{ duration: 0.5, delay: 1.85, ease: [0.16, 1, 0.3, 1] }}
+            className="flex justify-center items-center"
           >
             <Link
-              href="/login"
-              className="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold text-sm tracking-wide transition-all shadow-[0_0_30px_rgba(59,130,246,0.5)] hover:scale-105 active:scale-95"
+              href="#the-dilemma"
+              className="group px-8 py-3.5 bg-gradient-to-r from-blue-600/90 to-indigo-600/90 hover:from-blue-500 hover:to-indigo-500 text-white border border-blue-400/30 rounded-full font-bold text-sm tracking-wide transition-all shadow-[0_0_25px_rgba(59,130,246,0.4)] hover:shadow-[0_0_35px_rgba(59,130,246,0.65)] hover:scale-105 active:scale-95 flex items-center gap-2"
             >
-              Scan Your Syllabus Free →
-            </Link>
-            <Link
-              href="#neural-bridge"
-              className="px-7 py-3.5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 border border-white/10 rounded-full font-semibold text-sm tracking-wide transition-all hover:scale-105 active:scale-95"
-            >
-              See How It Connects
+              <span>Where It Goes Wrong</span>
+              <span className="text-blue-300 group-hover:translate-y-0.5 transition-transform duration-200">↓</span>
             </Link>
           </motion.div>
         </div>
