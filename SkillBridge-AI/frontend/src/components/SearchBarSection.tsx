@@ -1,269 +1,357 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence, useInView } from "framer-motion";
+
+interface QueryItem {
+  text: string;
+  tag: string;
+}
+
+const QUERIES = [
+  {
+    text: "how to get a software engineering job in 2026 with AI",
+    badge: "Market Panic",
+    results: [
+      { text: "Learn 10+ AI frameworks & DevOps simultaneously", tag: "Overload" },
+      { text: "Grind 500 LeetCode problems every semester", tag: "Extreme" },
+      { text: "\"Junior SWE is dead, give up now\"", tag: "Panic" },
+    ],
+  },
+  {
+    text: "which tech stack should I learn in college to get hired",
+    badge: "Conflicting Roadmaps",
+    results: [
+      { text: "\"Learn MERN! Wait, MERN is dead — learn Rust\"", tag: "Contradiction" },
+      { text: "\"Only DSA matters\" vs \"Only full-stack matters\"", tag: "Confusion" },
+      { text: "Result: 5 started roadmaps, 0 finished skills", tag: "Paralysis" },
+    ],
+  },
+  {
+    text: "how to use my college syllabus to get industry ready for SWE",
+    badge: "SkillBridge Match",
+  },
+];
 
 export default function SearchBarSection() {
-  const [activeTab, setActiveTab] = useState<"generic" | "skillbridge">("generic");
-  const [autoPlay, setAutoPlay] = useState(true);
+  const containerRef = useRef<HTMLElement>(null);
+  const isInView = useInView(containerRef, { margin: "0px 0px -80px 0px", once: true });
 
-  // Auto-switch between tabs every 7 seconds unless the user clicks
-  useEffect(() => {
-    if (!autoPlay) return;
-    const interval = setInterval(() => {
-      setActiveTab((prev) => (prev === "generic" ? "skillbridge" : "generic"));
-    }, 7000);
-    return () => clearInterval(interval);
-  }, [autoPlay]);
+  const [phase, setPhase] = useState<"idle" | "typing" | "results" | "sb_typing" | "sb_done">("idle");
+  const [queryIndex, setQueryIndex] = useState(0);
+  const [typedText, setTypedText] = useState("");
+  const [showResults, setShowResults] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
 
-  const handleTabClick = (tab: "generic" | "skillbridge") => {
-    setAutoPlay(false);
-    setActiveTab(tab);
+  const timeouts = useRef<NodeJS.Timeout[]>([]);
+  const flipTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const hasStarted = useRef(false);
+
+  const clearAllTimeouts = () => {
+    timeouts.current.forEach((t) => clearTimeout(t));
+    timeouts.current = [];
+    if (flipTimerRef.current) {
+      clearTimeout(flipTimerRef.current);
+      flipTimerRef.current = null;
+    }
   };
 
+  // Cleanup only on unmount
+  useEffect(() => {
+    return () => clearAllTimeouts();
+  }, []);
+
+  // Auto-flip from College Disconnect (crosses) to SkillBridge Solution (ticks)
+  useEffect(() => {
+    if (phase === "sb_done" && showResults) {
+      setIsFlipped(false);
+      if (flipTimerRef.current) clearTimeout(flipTimerRef.current);
+      flipTimerRef.current = setTimeout(() => {
+        setIsFlipped(true);
+      }, 2600);
+    }
+    return () => {
+      if (flipTimerRef.current) clearTimeout(flipTimerRef.current);
+    };
+  }, [phase, showResults]);
+
+  const typeQuery = useCallback((qi: number) => {
+    clearAllTimeouts();
+
+    // Query 2: Transition to SkillBridge query
+    if (qi >= 2) {
+      setTypedText("");
+      setShowResults(false);
+      setQueryIndex(2);
+      setPhase("sb_typing");
+
+      const sbQuery = QUERIES[2].text;
+      let charIdx = 0;
+
+      const typeCharSb = () => {
+        if (charIdx <= sbQuery.length) {
+          setTypedText(sbQuery.slice(0, charIdx));
+          charIdx++;
+          const t = setTimeout(typeCharSb, 26);
+          timeouts.current.push(t);
+        } else {
+          const t1 = setTimeout(() => {
+            setShowResults(true);
+            setPhase("sb_done");
+          }, 250);
+          timeouts.current.push(t1);
+        }
+      };
+
+      typeCharSb();
+      return;
+    }
+
+    // Queries 0 and 1: Google panic & confusion
+    const currentQ = QUERIES[qi];
+    setTypedText("");
+    setShowResults(false);
+    setQueryIndex(qi);
+    setPhase("typing");
+
+    let charIdx = 0;
+    const typeChar = () => {
+      if (charIdx <= currentQ.text.length) {
+        setTypedText(currentQ.text.slice(0, charIdx));
+        charIdx++;
+        const t = setTimeout(typeChar, 28);
+        timeouts.current.push(t);
+      } else {
+        // Show results
+        const t1 = setTimeout(() => setShowResults(true), 200);
+        // Pause 3 seconds so the student can easily read, then advance to next query
+        const t2 = setTimeout(() => {
+          setShowResults(false);
+          const t3 = setTimeout(() => typeQuery(qi + 1), 350);
+          timeouts.current.push(t3);
+        }, 3200);
+        timeouts.current.push(t1, t2);
+      }
+    };
+
+    typeChar();
+  }, []);
+
+  // Autoplay as soon as the section scrolls into view
+  useEffect(() => {
+    if (isInView && !hasStarted.current) {
+      hasStarted.current = true;
+      const t = setTimeout(() => {
+        typeQuery(0);
+      }, 350);
+      return () => clearTimeout(t);
+    }
+  }, [isInView, typeQuery]);
+
+  const handleReplay = () => {
+    clearAllTimeouts();
+    setIsFlipped(false);
+    setTypedText("");
+    setShowResults(false);
+    setQueryIndex(0);
+    typeQuery(0);
+  };
+
+  const isSb = phase === "sb_typing" || phase === "sb_done";
+
   return (
-    <section className="py-24 relative overflow-hidden border-t border-white/5 bg-black">
+    <section ref={containerRef} className="py-24 relative overflow-hidden border-t border-white/5 bg-black">
       {/* Background Soft Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-purple-600/10 rounded-full blur-[130px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[380px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
-        {/* Section Header */}
+        {/* Section Header (Centered, Clean, No extra boxes) */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/20 bg-purple-500/10 mb-5 shadow-[0_0_20px_rgba(168,85,247,0.15)]">
-            <span className="text-sm">🔍</span>
-            <span className="text-purple-400 text-xs font-mono font-bold uppercase tracking-[0.2em]">
-              The Search Dilemma
-            </span>
-          </div>
-
-          <h2 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight">
-            Stop Asking the Internet.{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400">
-              Ask Your Syllabus.
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white mb-4 leading-[1.15]">
+            Lost Between College Lectures{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-400 drop-shadow-[0_2px_18px_rgba(59,130,246,0.3)]">
+              and Internet Noise.
             </span>
           </h2>
 
-          <p className="text-zinc-400 text-base md:text-lg font-light max-w-2xl mx-auto leading-relaxed">
-            Generic internet advice gives you 100 conflicting opinions. SkillBridge uses what you're already learning in college to build a personalized bridge to industry.
+          <p className="text-zinc-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-normal leading-relaxed">
+            The problem isn&apos;t what you study in college — it&apos;s that nobody tells you what to focus on from each semester, when to learn it, and how it connects to your goal.
           </p>
         </div>
 
-        {/* Interactive Mode Switcher Tabs */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex p-1.5 rounded-2xl bg-zinc-900/80 border border-white/10 backdrop-blur-xl shadow-xl">
-            <button
-              onClick={() => handleTabClick("generic")}
-              className={`px-5 py-2.5 rounded-xl text-xs md:text-sm font-semibold transition-all flex items-center gap-2 ${
-                activeTab === "generic"
-                  ? "bg-red-500/20 text-red-300 border border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.2)]"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-            >
-              <span>🌐</span>
-              <span>1. Normal Internet Search</span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-red-950/60 text-red-400 border border-red-800/40">
-                Panic
-              </span>
-            </button>
+        {/* Automatic Search Bar (No boxes or timer lines above) */}
+        <div className="relative">
+          <div
+            className={`flex items-center gap-3.5 rounded-2xl border px-5 sm:px-6 py-4.5 mb-5 shadow-2xl transition-all duration-500 min-h-[72px] ${
+              isSb
+                ? "border-blue-500/50 bg-blue-950/20 shadow-[0_0_35px_rgba(59,130,246,0.18)]"
+                : queryIndex === 0 && phase !== "idle"
+                ? "border-red-500/30 bg-zinc-950/90 shadow-[0_0_30px_rgba(239,68,68,0.12)]"
+                : queryIndex === 1
+                ? "border-amber-500/30 bg-zinc-950/90 shadow-[0_0_30px_rgba(245,158,11,0.12)]"
+                : "border-white/10 bg-zinc-950/80"
+            }`}
+          >
+            <span className="text-xl flex-shrink-0">🔍</span>
 
-            <button
-              onClick={() => handleTabClick("skillbridge")}
-              className={`px-5 py-2.5 rounded-xl text-xs md:text-sm font-semibold transition-all flex items-center gap-2 ${
-                activeTab === "skillbridge"
-                  ? "bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-[0_0_20px_rgba(59,130,246,0.2)]"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-            >
-              <span>⚡</span>
-              <span>2. SkillBridge AI Search</span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-950/60 text-blue-400 border border-blue-800/40">
-                Clarity
+            <div className="flex-1 font-mono text-xs sm:text-sm md:text-base text-zinc-100 flex items-center min-w-0">
+              <span className={isSb ? "text-blue-300 font-semibold" : "text-zinc-200"}>
+                {typedText}
               </span>
-            </button>
+              <span className="inline-block w-1.5 h-4 sm:h-5 ml-1 bg-blue-400 align-middle animate-pulse" />
+            </div>
+
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {isSb ? (
+                <span className="text-[10px] font-mono px-2.5 py-1 rounded-full border border-blue-500/40 bg-blue-950/50 text-blue-300">
+                  SkillBridge Match
+                </span>
+              ) : (
+                <span
+                  className={`text-[10px] font-mono px-2.5 py-1 rounded-full border ${
+                    queryIndex === 0
+                      ? "border-red-500/30 bg-red-950/40 text-red-300"
+                      : "border-amber-500/30 bg-amber-950/40 text-amber-300"
+                  }`}
+                >
+                  {QUERIES[queryIndex]?.badge || "Google Search"}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Animated Container */}
-        <AnimatePresence mode="wait">
-          {activeTab === "generic" ? (
-            <motion.div
-              key="generic"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.35 }}
-              className="space-y-6"
-            >
-              {/* Fake Google Search Input */}
-              <div className="rounded-2xl border border-red-500/30 bg-zinc-950/80 p-5 shadow-2xl backdrop-blur-xl flex items-center gap-4">
-                <span className="text-xl">🔍</span>
-                <div className="flex-1 font-mono text-sm md:text-base text-red-300">
-                  how to become a software engineer from college in 2026?
-                </div>
-                <span className="text-xs font-mono text-zinc-500 hidden sm:inline">2,410,000 results</span>
-              </div>
-
-              {/* Confusing Generic Results */}
-              <div className="space-y-3">
-                {[
-                  {
-                    source: "Reddit r/csMajors",
-                    badge: "Contradiction",
-                    text: "You must grind 500 LeetCode hards, master 4 frameworks, and have 3 unpaid internships before sophomore year or you're doomed.",
-                    color: "border-red-500/20 bg-red-950/15 text-red-300",
-                  },
-                  {
-                    source: "YouTube Tech Influencer",
-                    badge: "Hype / Panic",
-                    text: "Why Python is DEAD in 2026! Stop learning your college coursework right now and switch to Rust & Mojo immediately.",
-                    color: "border-orange-500/20 bg-orange-950/15 text-orange-300",
-                  },
-                  {
-                    source: "Tech Medium Post",
-                    badge: "Overwhelm",
-                    text: "The 2026 Ultimate Guide: Learn React, Next.js, Angular, Svelte, Vue, Node, Go, Rust, AWS, GCP, and Kubernetes simultaneously.",
-                    color: "border-amber-500/20 bg-amber-950/15 text-amber-300",
-                  },
-                  {
-                    source: "Twitter / X Post",
-                    badge: "Existential",
-                    text: "AI is already writing 95% of software. If you're studying computer science in college, drop out and do something else.",
-                    color: "border-red-500/20 bg-red-950/15 text-red-300",
-                  },
-                ].map((item, idx) => (
+          {/* Results Area */}
+          <AnimatePresence mode="wait">
+            {/* Panic & Confusion Results for Queries 0 & 1 */}
+            {showResults && !isSb && (
+              <motion.div
+                key={`query-${queryIndex}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.25 }}
+                className="space-y-2 mb-6"
+              >
+                {QUERIES[queryIndex]?.results?.map((item: QueryItem, i: number) => (
                   <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, x: -10 }}
+                    key={i}
+                    initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.08 }}
-                    className={`p-4 rounded-xl border ${item.color} flex flex-col sm:flex-row sm:items-center justify-between gap-2`}
+                    transition={{ delay: i * 0.05 }}
+                    className={`px-4 sm:px-5 py-3 rounded-xl border text-xs sm:text-sm font-mono flex items-center justify-between gap-3 ${
+                      queryIndex === 0
+                        ? "border-red-500/20 bg-red-950/20 text-red-300"
+                        : "border-amber-500/20 bg-amber-950/20 text-amber-300"
+                    }`}
                   >
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-mono font-bold text-zinc-400">{item.source}</span>
-                        <span className="text-[10px] font-mono px-2 py-0.2 rounded-full border border-red-500/30 bg-red-950/40 text-red-400">
-                          {item.badge}
-                        </span>
-                      </div>
-                      <p className="text-xs md:text-sm text-zinc-300 font-light">{item.text}</p>
+                    <div className="flex items-center gap-2.5 truncate">
+                      <span className={queryIndex === 0 ? "text-red-400 font-bold" : "text-amber-400 font-bold"}>
+                        ✕
+                      </span>
+                      <span className="truncate">{item.text}</span>
                     </div>
+                    <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded border border-white/10 bg-black/50 text-zinc-400 flex-shrink-0">
+                      {item.tag}
+                    </span>
                   </motion.div>
                 ))}
-              </div>
+              </motion.div>
+            )}
 
-              {/* Generic Footer Alert */}
-              <div className="p-4 rounded-xl border border-red-500/30 bg-red-950/20 text-center text-xs md:text-sm font-mono text-red-400">
-                ⚠️ <span className="font-bold">The Problem:</span> 0% aware of your university syllabus. 100% generic noise. Leaves you feeling behind before you even start.
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="skillbridge"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.35 }}
-              className="space-y-6"
-            >
-              {/* SkillBridge Intelligent Search Bar */}
-              <div className="rounded-2xl border border-blue-500/50 bg-blue-950/30 p-5 shadow-[0_0_35px_rgba(59,130,246,0.2)] backdrop-blur-xl flex items-center gap-4">
-                <span className="text-xl">⚡</span>
-                <div className="flex-1 font-mono text-sm md:text-base text-blue-300">
-                  <span className="text-white font-bold">University Syllabus PDF (Sem 4)</span> + Target:{" "}
-                  <span className="text-sky-400 font-bold">Software Engineer</span>
-                </div>
-                <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  ✓ Gap Calculated
-                </span>
-              </div>
+            {/* Final SkillBridge Answer (Query 2) - Sequential Fade (Purple Fades Away, Blue Fades In, No Overlap) */}
+            {phase === "sb_done" && showResults && (
+              <div className="mb-6">
+                <AnimatePresence mode="wait">
+                  {!isFlipped ? (
+                    <motion.div
+                      key="college-disconnect"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.35, ease: "easeInOut" }}
+                      className="p-6 sm:p-7 rounded-2xl border border-purple-500/30 bg-purple-950/20 backdrop-blur-xl shadow-[0_0_40px_rgba(168,85,247,0.12)]"
+                    >
+                      <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-purple-500/15">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse shadow-[0_0_8px_rgba(192,132,252,0.8)]" />
+                          <span className="text-purple-300 text-xs font-bold uppercase tracking-wider font-mono">
+                            The College Disconnect
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-mono text-purple-400/90 bg-purple-950/60 px-2.5 py-0.5 rounded border border-purple-500/30">
+                          Where Students Get Stuck
+                        </span>
+                      </div>
 
-              {/* Two Column Intelligent Breakdown */}
-              <div className="grid md:grid-cols-2 gap-4">
-                {/* College Knowledge */}
-                <div className="p-5 rounded-2xl border border-blue-500/20 bg-blue-950/10 backdrop-blur-xl">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-blue-400">
-                      Already in Your Syllabus (55%)
-                    </span>
-                    <span className="text-xs font-mono text-emerald-400 font-bold">No Restarting</span>
-                  </div>
-                  <ul className="space-y-2 text-xs md:text-sm text-zinc-300">
-                    <li className="flex items-center gap-2">
-                      <span className="text-emerald-400">✓</span> OOP & Inheritance (CS102)
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-emerald-400">✓</span> Relational DBMS & SQL (CS204)
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-emerald-400">✓</span> Data Structures & Algorithms (CS201)
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-emerald-400">✓</span> Computer Networks & Sockets (CS301)
-                    </li>
-                  </ul>
-                </div>
+                      <ul className="space-y-3 text-xs sm:text-sm text-zinc-300 font-light">
+                        <li className="flex items-center gap-3">
+                          <span className="text-purple-400 text-sm font-mono font-bold">✕</span>
+                          <span>FY, SY, TY subjects scattered without context</span>
+                        </li>
+                        <li className="flex items-center gap-3">
+                          <span className="text-purple-400 text-sm font-mono font-bold">✕</span>
+                          <span>Unsure what matters for your career goal</span>
+                        </li>
+                        <li className="flex items-center gap-3">
+                          <span className="text-purple-400 text-sm font-mono font-bold">✕</span>
+                          <span>Stuck between passing exams or burning out</span>
+                        </li>
+                      </ul>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="skillbridge-solution"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.35, ease: "easeInOut" }}
+                      className="p-6 sm:p-7 rounded-2xl border border-blue-500/40 bg-blue-950/25 backdrop-blur-xl shadow-[0_0_40px_rgba(59,130,246,0.18)]"
+                    >
+                      <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-blue-500/20">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse shadow-[0_0_8px_#60a5fa]" />
+                          <span className="text-blue-300 text-xs font-bold uppercase tracking-wider font-mono">
+                            The SkillBridge Solution
+                          </span>
+                        </div>
+                        <span className="text-emerald-400 text-[11px] font-mono font-semibold bg-emerald-950/50 px-2.5 py-0.5 rounded border border-emerald-500/30">
+                          ✓ Syllabus Connected
+                        </span>
+                      </div>
 
-                {/* Missing Gap */}
-                <div className="p-5 rounded-2xl border border-purple-500/20 bg-purple-950/10 backdrop-blur-xl">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-purple-400">
-                      Industry Gap to Bridge (45%)
-                    </span>
-                    <span className="text-xs font-mono text-purple-400 font-bold">SkillBridge Target</span>
-                  </div>
-                  <ul className="space-y-2 text-xs md:text-sm text-zinc-300">
-                    <li className="flex items-center gap-2">
-                      <span className="text-sky-400">⚡</span> Production REST APIs & FastAPI
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-sky-400">⚡</span> Docker Containerization & Microservices
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-sky-400">⚡</span> Automated CI/CD & GitHub Testing
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-sky-400">⚡</span> Full-Stack Project Portfolio
-                    </li>
-                  </ul>
-                </div>
+                      <ul className="space-y-3 text-xs sm:text-sm text-zinc-100 font-light">
+                        <li className="flex items-center gap-3">
+                          <span className="text-blue-400 font-bold text-sm">✓</span>
+                          <span>Connects your current semester to your goal</span>
+                        </li>
+                        <li className="flex items-center gap-3">
+                          <span className="text-blue-400 font-bold text-sm">✓</span>
+                          <span>Credits what you study — no starting from zero</span>
+                        </li>
+                        <li className="flex items-center gap-3">
+                          <span className="text-blue-400 font-bold text-sm">✓</span>
+                          <span>Bridges only the missing practical gap</span>
+                        </li>
+                      </ul>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
+            )}
+          </AnimatePresence>
 
-              {/* 8-Week Personalized Roadmap Card */}
-              <div className="p-6 rounded-2xl border border-blue-500/30 bg-zinc-950/80 backdrop-blur-xl">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-2.5 h-2.5 rounded-full bg-blue-400 animate-pulse" />
-                  <span className="text-xs font-mono font-bold uppercase tracking-widest text-blue-400">
-                    Your Tailored 8-Week Blueprint
-                  </span>
-                </div>
-
-                <div className="grid sm:grid-cols-2 gap-3 text-xs font-mono">
-                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                    <span className="text-blue-400 font-bold block mb-1">Weeks 1–2:</span>
-                    <p className="text-zinc-300">Connect College OOP & DBMS to live REST API endpoints.</p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                    <span className="text-blue-400 font-bold block mb-1">Weeks 3–4:</span>
-                    <p className="text-zinc-300">Build production CRUD backend with JWT authentication.</p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                    <span className="text-blue-400 font-bold block mb-1">Weeks 5–6:</span>
-                    <p className="text-zinc-300">Containerize your app with Docker and deploy to Cloud Run.</p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                    <span className="text-blue-400 font-bold block mb-1">Weeks 7–8:</span>
-                    <p className="text-zinc-300">Sync with Google Sheets, optimize ATS resume, and mock test.</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* SkillBridge Footer Alert */}
-              <div className="p-4 rounded-xl border border-blue-500/30 bg-blue-950/30 text-center text-xs md:text-sm font-mono text-blue-300">
-                ✨ <span className="font-bold">The Difference:</span> We credit you for what you already studied in college. No restarting from zero. Just close the missing gap.
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          {/* Replay Button */}
+          <div className="flex justify-center items-center min-h-[36px]">
+            {phase === "sb_done" && (
+              <button
+                onClick={handleReplay}
+                className="text-xs font-mono text-zinc-500 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer px-4 py-2 rounded-full border border-white/5 hover:border-white/20 bg-white/[0.02]"
+              >
+                <span>↺</span> Replay Search Story
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );
