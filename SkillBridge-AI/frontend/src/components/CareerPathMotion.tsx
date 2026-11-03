@@ -200,21 +200,21 @@ export default function CareerPathMotion() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
 
       {/* Section Header */}
-      <div className="text-center mb-6 z-10 px-6">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-500/20 bg-blue-500/10 mb-4 shadow-[0_0_20px_rgba(59,130,246,0.15)]">
-          <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-          <span className="text-blue-400 text-xs font-mono font-bold uppercase tracking-[0.2em]">
-            The SkillBridge Neural Architecture
+      <div className="text-center mb-8 z-10 px-6">
+        <div className="inline-flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-4 shadow-[0_0_20px_rgba(255,255,255,0.03)]">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_#60a5fa]" />
+          <span className="text-[11px] font-mono tracking-[0.22em] text-zinc-400 uppercase font-semibold">
+            02 // Neural Architecture
           </span>
         </div>
-        <h2 className="text-3xl md:text-5xl font-black mb-3 text-white tracking-tight">
-          How Your Syllabus Connects to{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-400">
-            Real Careers
+        <h2 className="font-display text-3xl sm:text-4xl md:text-[46px] lg:text-[52px] font-bold text-white tracking-tight leading-[1.12]">
+          How Your Coursework Connects to <br className="hidden sm:inline" />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-400 drop-shadow-[0_2px_18px_rgba(59,130,246,0.3)]">
+            Real Industry Careers.
           </span>
         </h2>
-        <p className="text-zinc-400 text-sm md:text-base max-w-2xl mx-auto font-light leading-relaxed">
-          Hover over any college course or target job to see how SkillBridge's AI bridges academic theory into hiring criteria.
+        <p className="text-zinc-400 text-sm sm:text-base md:text-lg max-w-xl mx-auto font-normal leading-relaxed mt-4 tracking-[-0.01em]">
+          Hover over any college course or target job to see how SkillBridge&apos;s AI bridges academic theory into hiring criteria.
         </p>
       </div>
 

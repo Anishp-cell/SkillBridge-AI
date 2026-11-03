@@ -323,7 +323,7 @@ export default function Home() {
 
         <div className="relative z-10 pt-20 md:pt-24 max-w-5xl mx-auto flex flex-col items-center">
           {/* 1. Main Title - First thing you see on load (Balanced scale with navbar) */}
-          <h1 className="text-4xl sm:text-6xl md:text-[68px] lg:text-[76px] font-extrabold tracking-tight mb-8 leading-[1.1]">
+          <h1 className="font-display text-4xl sm:text-6xl md:text-[68px] lg:text-[76px] font-extrabold tracking-tight mb-8 leading-[1.1]">
             {/* Line 1: Bridge the Gap. (starts at 0.1s) */}
             <div className="flex flex-wrap justify-center overflow-hidden">
               {line1Words.map((word, i) => (
@@ -376,20 +376,47 @@ export default function Home() {
             We show you <span className="font-semibold text-cyan-300">what&apos;s missing</span> and <span className="font-semibold text-emerald-300">what to learn next</span>.
           </motion.p>
 
-          {/* 3. Action Button - Appears right after subtext */}
+          {/* 3. Action Button - Styled in the Navbar Capsule aesthetic */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 1.85, ease: [0.16, 1, 0.3, 1] }}
             className="flex justify-center items-center"
           >
-            <Link
-              href="#the-dilemma"
-              className="group px-8 py-3.5 bg-gradient-to-r from-blue-600/90 to-indigo-600/90 hover:from-blue-500 hover:to-indigo-500 text-white border border-blue-400/30 rounded-full font-bold text-sm tracking-wide transition-all shadow-[0_0_25px_rgba(59,130,246,0.4)] hover:shadow-[0_0_35px_rgba(59,130,246,0.65)] hover:scale-105 active:scale-95 flex items-center gap-2"
-            >
-              <span>Where It Goes Wrong</span>
-              <span className="text-blue-300 group-hover:translate-y-0.5 transition-transform duration-200">↓</span>
-            </Link>
+            <div className="relative group">
+              {/* Ambient Glow Aura behind button (matching navbar dock glow) */}
+              <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-blue-600/30 via-sky-500/25 to-blue-600/30 blur-md opacity-50 group-hover:opacity-85 transition-opacity duration-300 -z-10" />
+
+              <Link
+                href="#the-dilemma"
+                className="relative h-[52px] px-7 sm:px-8 rounded-full bg-[#070a12]/90 backdrop-blur-2xl border border-white/[0.16] shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_12px_45px_rgba(0,0,0,0.9),0_0_20px_rgba(59,130,246,0.12)] flex items-center gap-3 transition-all duration-300 hover:scale-105 active:scale-95 hover:border-white/30 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_14px_50px_rgba(0,0,0,0.95),0_0_28px_rgba(59,130,246,0.3)] overflow-hidden"
+              >
+                {/* Ambient top hairline glow highlight */}
+                <span className="absolute inset-x-6 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
+
+                {/* Subtle color shimmer sweep on hover */}
+                <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform ease-out pointer-events-none" />
+
+                {/* Status indicator dot */}
+                <span className="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_8px_#60a5fa] group-hover:scale-125 transition-transform duration-200" />
+
+                {/* Button Text */}
+                <span className="text-sm sm:text-base font-bold text-zinc-100 group-hover:text-white transition-colors tracking-wide">
+                  Where It Goes Wrong
+                </span>
+
+                {/* Down Arrow */}
+                <svg
+                  className="w-4 h-4 text-zinc-400 group-hover:text-blue-300 group-hover:translate-y-0.5 transition-all duration-200"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
+                </svg>
+              </Link>
+            </div>
           </motion.div>
         </div>
 
@@ -424,15 +451,21 @@ export default function Home() {
 
         {/* Section 3: How It Works */}
         <section id="how-it-works" className="py-28 scroll-mt-28 border-t border-white/5">
-          <div className="text-center mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-500/20 bg-blue-500/10 mb-4">
-              <span className="text-blue-400 text-xs font-mono font-bold uppercase tracking-[0.2em]">
-                Three Step Flow
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-4 shadow-[0_0_20px_rgba(255,255,255,0.03)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_#60a5fa]" />
+              <span className="text-[11px] font-mono tracking-[0.2em] text-zinc-400 uppercase font-semibold">
+                03 // Execution Roadmap
               </span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-white mb-4">How It Works</h2>
-            <p className="text-zinc-400 text-base md:text-lg max-w-xl mx-auto">
-              From university PDF to hiring-ready portfolio in three simple steps.
+            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white mb-4 leading-[1.15]">
+              Bridging Theory to Industry in{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-400 drop-shadow-[0_2px_18px_rgba(59,130,246,0.3)]">
+                Three Simple Steps.
+              </span>
+            </h2>
+            <p className="text-zinc-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-normal leading-relaxed">
+              From university PDF to hiring-ready portfolio with continuous AI gap detection and weekly milestones.
             </p>
           </div>
 
@@ -487,10 +520,21 @@ export default function Home() {
         {/* Section 4: FAQ Section */}
         <section id="faq" className="py-28 scroll-mt-28 border-t border-white/5">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black mb-4">
-              Got Questions About <span className="text-blue-500">SkillBridge?</span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-4 shadow-[0_0_20px_rgba(255,255,255,0.03)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_#60a5fa]" />
+              <span className="text-[11px] font-mono tracking-[0.2em] text-zinc-400 uppercase font-semibold">
+                04 // Common Inquiries
+              </span>
+            </div>
+            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white mb-4 leading-[1.15]">
+              Got Questions About{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-400 drop-shadow-[0_2px_18px_rgba(59,130,246,0.3)]">
+                SkillBridge AI?
+              </span>
             </h2>
-            <p className="text-zinc-400 text-base md:text-lg">Everything you need to know about the platform.</p>
+            <p className="text-zinc-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-normal leading-relaxed">
+              Everything you need to know about our parsing accuracy, syllabus benchmarks, and roadmap export capabilities.
+            </p>
           </div>
 
           <div className="max-w-3xl mx-auto space-y-4">
